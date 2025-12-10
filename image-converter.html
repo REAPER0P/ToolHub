@@ -165,12 +165,19 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0);
 
-          const newImgURL = canvas.toDataURL(`image/${format}`);
-
-          const a = document.createElement("a");
-          a.href = newImgURL;
-          a.download = `converted.${format}`;
-          a.click();
+          canvas.toBlob(
+            (blob) => {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `converted.${format}`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(url);
+            },
+            `image/${format}`
+          );
         };
       };
       reader.readAsDataURL(file);
