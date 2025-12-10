@@ -3,180 +3,516 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tools Wonder - Your Daily Tools, All in One Place</title>
+  <title>ToolsHub - Your Daily Tools, All in One Place</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background:#f7faff; color:#1e2a40; }
-    header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:#0d6efd; color:white; }
-    header .logo { font-size:1.5rem; font-weight:700; }
-    nav a { color:white; margin-left:20px; text-decoration:none; font-weight:500; }
-    .hero { text-align:center; padding:80px 20px; background:white; }
-    .hero h1 { font-size:2.5rem; margin-bottom:10px; }
-    .hero p { font-size:1.2rem; margin-bottom:20px; color:#333; }
-    .hero button { padding:12px 25px; background:#0d6efd; border:none; color:white; border-radius:8px; cursor:pointer; font-size:1rem; }
-    .search-bar { max-width:600px; margin:40px auto; display:flex; }
-    .search-bar input { flex:1; padding:15px; border-radius:10px 0 0 10px; border:1px solid #bbb; font-size:1rem; }
-    .search-bar button { padding:15px; border-radius:0 10px 10px 0; border:none; background:#0d6efd; color:white; cursor:pointer; }
-    section { padding:50px 20px; max-width:1200px; margin:auto; }
-    section h2 { font-size:1.8rem; margin-bottom:10px; }
-    section p.sub { margin-bottom:25px; color:#444; }
-    .tool-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; }
-    .card { background:white; padding:20px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.06); transition:0.3s; }
-    .card:hover { transform:translateY(-5px); box-shadow:0 6px 16px rgba(0,0,0,0.1); }
-    .card h3 { margin:10px 0 8px; font-size:1.2rem; }
-    .card p { color:#555; font-size:0.95rem; margin-bottom:15px; }
-    .card a { display:inline-block; padding:10px 18px; background:#0d6efd; color:white; border-radius:8px; text-decoration:none; font-size:0.9rem; }
-    footer { text-align:center; padding:30px; background:#0d6efd; color:white; margin-top:40px; }
-    footer a { color:white; margin:0 10px; text-decoration:none; }
+    :root{
+      --accent: #2a7bff; /* sky blue accents */
+      --bg-start: #4da9ff;
+      --bg-end: #6ecbff;
+      --card-radius: 16px;
+      --gap: 18px;
+      --max-width: 1200px;
+      --text-muted: #6b7280;
+    }
+
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: #f7f9fc;
+      color: #0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+    }
+
+    /* Header */
+    header{background:white;position:sticky;top:0;z-index:60;box-shadow:0 2px 8px rgba(10,20,50,0.06)}
+    .container{max-width:var(--max-width);margin:0 auto;padding:0 18px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .logo{font-weight:700;font-size:20px;color:var(--accent)}
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{color:#111827;text-decoration:none;font-weight:600}
+    .mailto{color:var(--text-muted);font-size:14px}
+
+    /* Mobile nav */
+    .nav-toggle{display:none;background:none;border:0;font-size:20px;color:var(--accent)}
+    @media (max-width:880px){nav{display:none;position:absolute;top:64px;right:18px;background:white;border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(10,20,50,0.08)}.nav-open{display:flex;flex-direction:column}}
+    @media (max-width:880px){.nav-toggle{display:inline-block}}
+
+    /* HERO */
+    .hero{padding:56px 0;background:linear-gradient(135deg,var(--bg-start),var(--bg-end));color:white}
+    .hero-inner{max-width:var(--max-width);margin:0 auto;padding:0 18px;display:flex;flex-direction:column;gap:18px;align-items:center}
+    .hero h1{margin:0;font-size:28px;font-weight:700;text-align:center}
+    .hero p{margin:0;color:rgba(255,255,255,0.95);font-size:16px;text-align:center}
+    .hero-actions{display:flex;gap:12px;align-items:center}
+    .btn-cta{background:white;color:var(--accent);padding:10px 18px;border-radius:999px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,20,50,0.08)}
+
+    /* Search */
+    .search-wrap{margin-top:12px;width:100%;max-width:760px}
+    .search-box{display:flex;align-items:center;background:white;border-radius:999px;overflow:hidden;box-shadow:0 8px 24px rgba(10,20,50,0.06)}
+    .search-box input{flex:1;padding:14px 18px;border:0;font-size:15px;outline:none}
+    .search-box button{background:var(--accent);border:0;padding:12px 18px;color:white;font-size:16px;cursor:pointer}
+
+    /* Sections */
+    section{padding:36px 0}
+    section .section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    section h2{margin:0;font-size:20px}
+    section p.sub{margin:6px 0 18px;color:var(--text-muted)}
+
+    .tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--gap)}
+    .tool-card{background:white;border-radius:var(--card-radius);padding:16px;box-shadow:0 8px 24px rgba(12,24,60,0.06);transition:transform .18s ease,box-shadow .18s ease;display:flex;flex-direction:column;align-items:center;text-align:center}
+    .tool-card:hover{transform:translateY(-6px);box-shadow:0 14px 40px rgba(12,24,60,0.1)}
+    .tool-card .icon{font-size:32px;color:var(--accent);margin-bottom:12px}
+    .tool-card h3{margin:4px 0 8px;font-size:16px}
+    .tool-card p{margin:0 0 12px;color:var(--text-muted);font-size:13px}
+    .use-btn{background:var(--accent);color:white;padding:8px 14px;border-radius:999px;text-decoration:none;font-weight:700;font-size:13px}
+
+    /* small tag */
+    .pill{background:rgba(42,123,255,0.08);color:var(--accent);padding:6px 10px;border-radius:999px;font-size:13px;font-weight:600}
+
+    /* Footer */
+    footer{background:#f1f8ff;padding:28px 0;border-top:1px solid rgba(42,123,255,0.06)}
+    footer .foot-inner{display:flex;flex-direction:column;align-items:center;gap:8px}
+    footer p{margin:0;color:var(--text-muted)}
+    footer .links{display:flex;gap:12px}
+
+    /* Responsive typography */
+    @media (min-width:880px){.hero h1{font-size:34px}.hero p{font-size:18px}}
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">Tools Wonder</div>
-  <nav>
-    <a href="#">Home</a>
-    <a href="#tools">Tools</a>
-    <a href="mailto:toolswonder1@gmail.com">Contact</a>
-  </nav>
-</header>
+  <header>
+    <div class="container topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo">ToolsHub</div>
+        <div class="mailto" style="display:none">Contact: toolshub2025@gmail.com</div>
+      </div>
 
-<div class="hero">
-  <h1>Your Daily Tools, All in One Place</h1>
-  <p>Convert, calculate, compress, and simplify your everyday tasks — fast and free.</p>
-  <button>Explore Tools</button>
-</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <nav id="mainNav" class="">
+          <a href="#">Home</a>
+          <a href="#tools">Tools</a>
+          <a href="mailto:toolshub2025@gmail.com">Contact</a>
+        </nav>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
+      </div>
+    </div>
+  </header>
 
-<div class="search-bar">
-  <input type="text" placeholder="Search a tool…" />
-  <button><i class="fa fa-search"></i></button>
-</div>
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <h1>Your Daily Tools, All in One Place</h1>
+        <p>Convert, calculate, compress, and simplify your everyday tasks — fast and free.</p>
 
-<!-- IMAGE TOOLS -->
-<section>
-  <h2>🖼 Image Tools</h2>
-  <p class="sub">Quick utilities to convert, resize, compress, and enhance your images.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>Image Converter</h3><p>Convert images between formats instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Image Compressor</h3><p>Reduce image size while keeping quality.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Image Resizer</h3><p>Resize your images to any dimension.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Image Cropper</h3><p>Crop photos with precision and ease.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Image to Text (OCR)</h3><p>Extract text from images in seconds.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Image Rotator/Flipper</h3><p>Rotate or flip images quickly.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="hero-actions">
+          <a class="btn-cta" href="#tools">Explore Tools</a>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pill">Fast • Free</span>
+          </div>
+        </div>
 
-<!-- DOCUMENT TOOLS -->
-<section>
-  <h2>📄 Document Tools</h2>
-  <p class="sub">Handle PDFs and documents effortlessly.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>PDF to Word / Word to PDF</h3><p>Convert documents across formats.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>PDF Compressor</h3><p>Reduce your PDF size instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>PDF Merger & Splitter</h3><p>Combine or divide PDF files.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Document Converter</h3><p>Convert files between document types.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>PDF Lock/Unlock</h3><p>Secure or remove password protection.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>eSign PDF</h3><p>Digitally sign PDF files online.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="search-wrap">
+          <div class="search-box">
+            <input id="searchInput" type="search" placeholder="Search a tool…" aria-label="Search tools" />
+            <button id="searchClear" title="Clear"><i class="fa fa-times" style="opacity:.9"></i></button>
+            <button id="searchBtn" aria-label="Search"><i class="fa fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- CALCULATOR TOOLS -->
-<section>
-  <h2>🧮 Calculator Tools</h2>
-  <p class="sub">Perform fast and accurate calculations.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>Scientific Calculator</h3><p>Advanced calculations made easy.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Age Calculator</h3><p>Find age accurately from birthdate.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>BMI Calculator</h3><p>Calculate body mass index quickly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Loan EMI Calculator</h3><p>Estimate monthly loan payments.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>GST Calculator</h3><p>Compute GST amounts instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Currency Converter</h3><p>Convert currencies worldwide.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+    <section id="tools" class="container">
+      <!-- Image Tools -->
+      <div class="section-header">
+        <div>
+          <h2>🖼 Image Tools</h2>
+          <p class="sub">Convert, compress, resize, and extract text from images.</p>
+        </div>
+      </div>
 
-<!-- TEXT TOOLS -->
-<section>
-  <h2>🔤 Text Tools</h2>
-  <p class="sub">Modify, analyze, and transform text.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>Text Case Converter</h3><p>Switch between upper/lower cases.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Word & Character Counter</h3><p>Count words and characters.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Remove Duplicate Lines</h3><p>Clean text by removing duplicates.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Text Sorter</h3><p>Sort lines alphabetically.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Text Reverser</h3><p>Reverse text instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Text Encryptor/Decryptor</h3><p>Secure your text easily.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+      <div class="tool-grid" id="toolGrid">
+        <!-- Image Tools -->
+        <div class="tool-card" data-keywords="image converter convert jpg png webp">
+          <div class="icon"><i class="fa fa-image"></i></div>
+          <h3>Image Converter</h3>
+          <p>Convert images between formats quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<!-- WEB / DEV TOOLS -->
-<section>
-  <h2>🌐 Web & Developer Tools</h2>
-  <p class="sub">Helpful utilities for developers & creators.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>HTML/CSS/JS Minifier</h3><p>Minify website code files.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>JSON Formatter & Validator</h3><p>Format and validate JSON.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Base64 Encoder/Decoder</h3><p>Encode or decode Base64.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>URL Encoder/Decoder</h3><p>Encode or decode URLs.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Color Picker & Converter</h3><p>Pick and convert colors.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Regex Tester</h3><p>Test and debug regex patterns.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="tool-card" data-keywords="image compressor compress reduce size optimize">
+          <div class="icon"><i class="fa fa-compress"></i></div>
+          <h3>Image Compressor</h3>
+          <p>Reduce file size while keeping quality.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<!-- COLOR TOOLS -->
-<section>
-  <h2>🎨 Color Tools</h2>
-  <p class="sub">Design-focused color utilities.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>Color Picker from Image</h3><p>Extract colors from images.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>HEX to RGB Converter</h3><p>Convert color formats easily.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Gradient Generator</h3><p>Create beautiful gradients.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Contrast Checker</h3><p>Check accessibility contrast.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Palette Generator</h3><p>Create matching color palettes.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Color Blindness Simulator</h3><p>Simulate color blindness.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="tool-card" data-keywords="image resizer resize scale dimensions">
+          <div class="icon"><i class="fa fa-expand"></i></div>
+          <h3>Image Resizer</h3>
+          <p>Resize images to exact dimensions.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<!-- SEO TOOLS -->
-<section>
-  <h2>🌍 SEO & Marketing Tools</h2>
-  <p class="sub">Boost your content performance.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>Keyword Density Checker</h3><p>Analyze keyword frequency.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Meta Tag Analyzer</h3><p>Review meta tags instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Word Counter</h3><p>Count words accurately.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="tool-card" data-keywords="image crop cropper trim">
+          <div class="icon"><i class="fa fa-crop"></i></div>
+          <h3>Image Cropper</h3>
+          <p>Crop images with precision.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<!-- UTILITY TOOLS -->
-<section>
-  <h2>🛠️ Utility Tools</h2>
-  <p class="sub">General-purpose everyday helpers.</p>
-  <div class="tool-grid">
-    <div class="card"><h3>QR Code Generator & Scanner</h3><p>Create or scan QR codes.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Barcode Generator</h3><p>Generate various barcodes.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>UUID Generator</h3><p>Create unique identifiers.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Unit Converter</h3><p>Convert units instantly.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Time Zone Converter</h3><p>Check global time zones.</p><a href="#">Use Tool</a></div>
-    <div class="card"><h3>Random Number/Password Generator</h3><p>Generate passwords & numbers.</p><a href="#">Use Tool</a></div>
-  </div>
-</section>
+        <div class="tool-card" data-keywords="ocr image to text extract text scan">
+          <div class="icon"><i class="fa fa-font"></i></div>
+          <h3>Image to Text (OCR)</h3>
+          <p>Extract text from photos and scans.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<footer>
-  <p><strong>Tools Wonder</strong> — Simplifying your digital life.</p>
-  <p>Contact: toolswonder1@gmail.com</p>
-  <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a>
-</footer>
+        <div class="tool-card" data-keywords="rotate flip rotate image">
+          <div class="icon"><i class="fa fa-sync-alt"></i></div>
+          <h3>Image Rotator/Flipper</h3>
+          <p>Rotate or flip images effortlessly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
 
-<script>
-const searchInput = document.querySelector('.search-bar input');
-const cards = document.querySelectorAll('.card');
-searchInput.addEventListener('input', () => {
-  const val = searchInput.value.toLowerCase();
-  cards.forEach(card => {
-    const name = card.querySelector('h3').textContent.toLowerCase();
-    card.style.display = name.includes(val) ? 'block' : 'none';
-  });
-});
-</script>
+        <!-- Document Tools -->
+        <div class="tool-card" data-keywords="pdf to word word to pdf convert">
+          <div class="icon"><i class="fa fa-file-pdf"></i></div>
+          <h3>PDF to Word / Word to PDF</h3>
+          <p>Convert between PDF and Word formats.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="pdf compressor compress pdf reduce size">
+          <div class="icon"><i class="fa fa-compress-alt"></i></div>
+          <h3>PDF Compressor</h3>
+          <p>Make large PDFs smaller for sharing.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="merge split pdf combine splitter">
+          <div class="icon"><i class="fa fa-file-invoice"></i></div>
+          <h3>PDF Merger &amp; Splitter</h3>
+          <p>Combine multiple PDFs or split pages.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="document converter docx odt convert">
+          <div class="icon"><i class="fa fa-file-alt"></i></div>
+          <h3>Document Converter</h3>
+          <p>Convert documents across formats.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="pdf lock unlock protect password">
+          <div class="icon"><i class="fa fa-lock"></i></div>
+          <h3>PDF Lock/Unlock</h3>
+          <p>Protect or remove PDF passwords.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="esign sign pdf signature">
+          <div class="icon"><i class="fa fa-pencil-alt"></i></div>
+          <h3>eSign PDF</h3>
+          <p>Sign documents digitally with ease.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- Calculator Tools -->
+        <div class="tool-card" data-keywords="scientific calculator math sin cos tan">
+          <div class="icon"><i class="fa fa-calculator"></i></div>
+          <h3>Scientific Calculator</h3>
+          <p>Advanced math functions and history.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="age calculator birth age years months">
+          <div class="icon"><i class="fa fa-birthday-cake"></i></div>
+          <h3>Age Calculator</h3>
+          <p>Calculate age from date of birth.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="bmi body mass index health">
+          <div class="icon"><i class="fa fa-heart"></i></div>
+          <h3>BMI Calculator</h3>
+          <p>Check body mass index quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="loan emi mortgage calculator payments">
+          <div class="icon"><i class="fa fa-hand-holding-usd"></i></div>
+          <h3>Loan EMI Calculator</h3>
+          <p>Estimate monthly loan payments.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="gst tax india gst calculator">
+          <div class="icon"><i class="fa fa-percent"></i></div>
+          <h3>GST Calculator</h3>
+          <p>Calculate GST for prices and invoices.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="currency convert forex rates">
+          <div class="icon"><i class="fa fa-coins"></i></div>
+          <h3>Currency Converter</h3>
+          <p>Convert between currencies instantly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- Text Tools -->
+        <div class="tool-card" data-keywords="case converter uppercase lowercase titlecase">
+          <div class="icon"><i class="fa fa-text-height"></i></div>
+          <h3>Text Case Converter</h3>
+          <p>Switch text between cases in one click.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="word character counter count words characters">
+          <div class="icon"><i class="fa fa-sort-numeric-up"></i></div>
+          <h3>Word &amp; Character Counter</h3>
+          <p>Count words, characters and more.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="remove duplicate lines unique lines">
+          <div class="icon"><i class="fa fa-eraser"></i></div>
+          <h3>Remove Duplicate Lines</h3>
+          <p>Clean duplicate lines from text fast.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="sort text alphabetical order lines">
+          <div class="icon"><i class="fa fa-sort-alpha-down"></i></div>
+          <h3>Text Sorter</h3>
+          <p>Sort lines or words alphabetically.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="reverse text reverse words characters">
+          <div class="icon"><i class="fa fa-undo"></i></div>
+          <h3>Text Reverser</h3>
+          <p>Reverse text or sentence order quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="encrypt decrypt text cipher base64 aes">
+          <div class="icon"><i class="fa fa-lock-open"></i></div>
+          <h3>Text Encryptor/Decryptor</h3>
+          <p>Secure text with common ciphers.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- Developer Tools -->
+        <div class="tool-card" data-keywords="minify html css js minifier">
+          <div class="icon"><i class="fa fa-code"></i></div>
+          <h3>HTML/CSS/JS Minifier</h3>
+          <p>Compress front-end code for speed.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="json formatter validator pretty print">
+          <div class="icon"><i class="fa fa-brackets-curly"></i></div>
+          <h3>JSON Formatter &amp; Validator</h3>
+          <p>Format and validate JSON instantly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="base64 encode decode">
+          <div class="icon"><i class="fa fa-file-code"></i></div>
+          <h3>Base64 Encoder/Decoder</h3>
+          <p>Encode or decode Base64 strings.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="url encode decode uri percent">
+          <div class="icon"><i class="fa fa-link"></i></div>
+          <h3>URL Encoder/Decoder</h3>
+          <p>Encode URLs safely for web use.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="color picker color converter hex rgb">
+          <div class="icon"><i class="fa fa-eyedropper"></i></div>
+          <h3>Color Picker &amp; Converter</h3>
+          <p>Pick and convert colors between formats.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="regex tester expression match test">
+          <div class="icon"><i class="fa fa-search"></i></div>
+          <h3>Regex Tester</h3>
+          <p>Test regular expressions quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- Color Tools -->
+        <div class="tool-card" data-keywords="color picker from image sample hex to rgb">
+          <div class="icon"><i class="fa fa-image"></i></div>
+          <h3>Color Picker from Image</h3>
+          <p>Extract colors from images effortlessly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="hex to rgb convert hex rgb">
+          <div class="icon"><i class="fa fa-hashtag"></i></div>
+          <h3>HEX to RGB Converter</h3>
+          <p>Convert HEX values to RGB quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="gradient generator css gradient">
+          <div class="icon"><i class="fa fa-fill-drip"></i></div>
+          <h3>Gradient Generator</h3>
+          <p>Create beautiful CSS gradients.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="contrast checker accessibility wcag">
+          <div class="icon"><i class="fa fa-adjust"></i></div>
+          <h3>Contrast Checker</h3>
+          <p>Check color contrast for accessibility.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="palette generator swatches colors">
+          <div class="icon"><i class="fa fa-palette"></i></div>
+          <h3>Palette Generator</h3>
+          <p>Generate harmonious color palettes.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="color blindness simulator daltonize test">
+          <div class="icon"><i class="fa fa-eye"></i></div>
+          <h3>Color Blindness Simulator</h3>
+          <p>Preview images for different color blindness.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- SEO & Marketing Tools -->
+        <div class="tool-card" data-keywords="keyword density checker seo keywords">
+          <div class="icon"><i class="fa fa-search-plus"></i></div>
+          <h3>Keyword Density Checker</h3>
+          <p>Analyze keyword frequency for SEO.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="meta tag analyzer html seo meta">
+          <div class="icon"><i class="fa fa-tags"></i></div>
+          <h3>Meta Tag Analyzer</h3>
+          <p>Review meta tags for better SEO.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="word counter seo content length">
+          <div class="icon"><i class="fa fa-file-word"></i></div>
+          <h3>Word Counter</h3>
+          <p>Count words for posts and pages.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <!-- Utility Tools -->
+        <div class="tool-card" data-keywords="qr code generator scanner">
+          <div class="icon"><i class="fa fa-qrcode"></i></div>
+          <h3>QR Code Generator &amp; Scanner</h3>
+          <p>Create and scan QR codes instantly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="barcode generator create barcode">
+          <div class="icon"><i class="fa fa-barcode"></i></div>
+          <h3>Barcode Generator</h3>
+          <p>Generate common barcode formats.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="uuid generator unique id guid">
+          <div class="icon"><i class="fa fa-hashtag"></i></div>
+          <h3>UUID Generator</h3>
+          <p>Create unique identifiers quickly.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="unit converter length weight temp convert">
+          <div class="icon"><i class="fa fa-ruler-combined"></i></div>
+          <h3>Unit Converter</h3>
+          <p>Convert units for length, weight, and more.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="time zone converter tz convert time">
+          <div class="icon"><i class="fa fa-clock"></i></div>
+          <h3>Time Zone Converter</h3>
+          <p>Convert times across time zones easily.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+        <div class="tool-card" data-keywords="random number password generator secure random">
+          <div class="icon"><i class="fa fa-random"></i></div>
+          <h3>Random Number/Password Generator</h3>
+          <p>Generate secure passwords or random numbers.</p>
+          <a class="use-btn" href="#">Use Tool</a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-inner">
+      <div class="logo">ToolsHub</div>
+      <p>Simplifying your digital life.</p>
+      <p>Contact: <a href="mailto:toolshub2025@gmail.com">toolshub2025@gmail.com</a></p>
+      <div class="links"><a href="#">Privacy Policy</a><span>|</span><a href="#">Terms of Use</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const mainNav = document.getElementById('mainNav');
+    navToggle.addEventListener('click', ()=>{
+      if(mainNav.classList.contains('nav-open')) mainNav.classList.remove('nav-open');
+      else mainNav.classList.add('nav-open');
+    });
+
+    // Live search (fast, client-side)
+    const input = document.getElementById('searchInput');
+    const grid = document.getElementById('toolGrid');
+    const cards = Array.from(grid.querySelectorAll('.tool-card'));
+    const clearBtn = document.getElementById('searchClear');
+    const searchBtn = document.getElementById('searchBtn');
+
+    function normalize(s){return s.trim().toLowerCase();}
+
+    function filterTools(q){
+      const qn = normalize(q);
+      if(qn === ''){cards.forEach(c=>c.style.display='flex');return}
+      cards.forEach(card=>{
+        const kws = card.getAttribute('data-keywords') || '';
+        const name = card.querySelector('h3')?.innerText || '';
+        const hay = (kws + ' ' + name).toLowerCase();
+        if(hay.includes(qn)) card.style.display='flex'; else card.style.display='none';
+      });
+    }
+
+    // immediate filtering (no lag) on input
+    input.addEventListener('input', (e)=>filterTools(e.target.value));
+    input.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') { input.value=''; filterTools(''); } });
+    clearBtn.addEventListener('click', ()=>{ input.value=''; filterTools(''); input.focus(); });
+    searchBtn.addEventListener('click', ()=>filterTools(input.value));
+
+    // Accessibility: show/hide nav on outside click for mobile
+    document.addEventListener('click', function(e){
+      if(window.innerWidth <= 880){
+        const isClickInside = mainNav.contains(e.target) || navToggle.contains(e.target);
+        if(!isClickInside) mainNav.classList.remove('nav-open');
+      }
+    });
+  </script>
 </body>
 </html>
