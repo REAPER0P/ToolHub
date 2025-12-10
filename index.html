@@ -53,7 +53,7 @@
     .search-wrap{margin-top:12px;width:100%;max-width:760px}
     .search-box{display:flex;align-items:center;background:white;border-radius:999px;overflow:hidden;box-shadow:0 8px 24px rgba(10,20,50,0.06)}
     .search-box input{flex:1;padding:14px 18px;border:0;font-size:15px;outline:none}
-    .search-box button{background:var(--accent);border:0;padding:12px 18px;color:white;font-size:16px;cursor:pointer}
+    .search-box button{background:white;border:0;padding:12px 18px;color:blue;font-size:16px;cursor:pointer}
 
     /* Sections */
     section{padding:36px 0}
@@ -117,19 +117,18 @@
         <div class="search-wrap">
           <div class="search-box">
             <input id="searchInput" type="search" placeholder="Search a tool…" aria-label="Search tools" />
-            <button id="searchClear" title="Clear"><i class="fa fa-times" style="opacity:.9"></i></button>
             <button id="searchBtn" aria-label="Search"><i class="fa fa-search"></i></button>
           </div>
         </div>
       </div>
     </section>
-
+    
     <section id="tools" class="container">
       <!-- Image Tools -->
       <div class="section-header">
-        <div>
+          </div>
           <h2>🖼 Image Tools</h2>
-   <p class="sub">Convert, compress, resize, and extract text from images.</p>
+          <p class="sub">Convert, compress, resize, and extract text from images.</p>
         </div>
       </div>
 
@@ -176,14 +175,15 @@
           <p>Rotate or flip images effortlessly.</p>
           <a class="use-btn" href="#">Use Tool</a>
         </div>
-
-        <!-- Document Tools -->
+        
         <div class="section-header">
         <div>
-        <h2>📄 Document Tools</h2>
-  <p class="sub">Handle PDFs and documents effortlessly.</p>
-         <div>
-           
+           <h2>📄 Document Tools</h2>
+          <p class="sub">Handle PDFs and documents effortlessly.</p>
+        </div>
+      </div>
+
+        <!-- Document Tools -->
         <div class="tool-card" data-keywords="pdf to word word to pdf convert">
           <div class="icon"><i class="fa fa-file-pdf"></i></div>
           <h3>PDF to Word / Word to PDF</h3>
@@ -197,7 +197,7 @@
           <p>Make large PDFs smaller for sharing.</p>
           <a class="use-btn" href="#">Use Tool</a>
         </div>
-           
+
         <div class="tool-card" data-keywords="merge split pdf combine splitter">
           <div class="icon"><i class="fa fa-file-invoice"></i></div>
           <h3>PDF Merger &amp; Splitter</h3>
@@ -225,6 +225,13 @@
           <p>Sign documents digitally with ease.</p>
           <a class="use-btn" href="#">Use Tool</a>
         </div>
+        
+        <div class="section-header">
+        <div>
+          <h2>🧮 Calculator Tools</h2>
+          <p class="sub">Perform fast and accurate calculations.</p>
+        </div>
+      </div>
 
         <!-- Calculator Tools -->
         <div class="tool-card" data-keywords="scientific calculator math sin cos tan">
@@ -269,6 +276,13 @@
           <a class="use-btn" href="#">Use Tool</a>
         </div>
 
+        <div class="section-header">
+        <div>
+          <h2>🔤 Text Tools</h2>
+          <p class="sub">Modify, analyze, and transform text</p>
+        </div>
+      </div>
+
         <!-- Text Tools -->
         <div class="tool-card" data-keywords="case converter uppercase lowercase titlecase">
           <div class="icon"><i class="fa fa-text-height"></i></div>
@@ -311,6 +325,13 @@
           <p>Secure text with common ciphers.</p>
           <a class="use-btn" href="#">Use Tool</a>
         </div>
+
+        <div class="section-header">
+        <div>
+          <h2>🌐 Web & Developer Tools</h2>
+          <p class="sub">Helpful utilities for developers & creators.</p>
+        </div>
+      </div>
 
         <!-- Developer Tools -->
         <div class="tool-card" data-keywords="minify html css js minifier">
@@ -355,6 +376,13 @@
           <a class="use-btn" href="#">Use Tool</a>
         </div>
 
+        <div class="section-header">
+        <div>
+          <h2>🎨 Color Tools</h2>
+          <p class="sub">Design-focused color utilities.</p>
+        </div>
+      </div>
+
         <!-- Color Tools -->
         <div class="tool-card" data-keywords="color picker from image sample hex to rgb">
           <div class="icon"><i class="fa fa-image"></i></div>
@@ -398,6 +426,13 @@
           <a class="use-btn" href="#">Use Tool</a>
         </div>
 
+        <div class="section-header">
+        <div>
+          <h2>🌍 SEO & Marketing Tools</h2>
+          <p class="sub">Boost your content performance.</p>
+        </div>
+      </div>
+
         <!-- SEO & Marketing Tools -->
         <div class="tool-card" data-keywords="keyword density checker seo keywords">
           <div class="icon"><i class="fa fa-search-plus"></i></div>
@@ -419,6 +454,13 @@
           <p>Count words for posts and pages.</p>
           <a class="use-btn" href="#">Use Tool</a>
         </div>
+
+        <div class="section-header">
+        <div>
+          <h2>🛠️ Utility Tools</h2>
+          <p class="sub">General-purpose everyday helpers.</p>
+      </div>
+          </div>
 
         <!-- Utility Tools -->
         <div class="tool-card" data-keywords="qr code generator scanner">
