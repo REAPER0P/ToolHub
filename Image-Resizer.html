@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Image Resizer Tool</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f4f9ff;
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .box {
+        width: 95%;
+        max-width: 420px;
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #0066ff;
+        margin-bottom: 15px;
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    .upload-area {
+        width: 100%;
+        padding: 20px;
+        border: 2px dashed #007bff;
+        border-radius: 12px;
+        cursor: pointer;
+        color: #007bff;
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 12px;
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 12px;
+        font-size: 17px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #0059c9;
+    }
+
+    #downloadLink {
+        display: none;
+        margin-top: 15px;
+        padding: 12px;
+        background: #00c853;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    canvas {
+        max-width: 100%;
+        margin-top: 20px;
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <div class="logo">📐 Image Resizer</div>
+
+    <!-- Hidden Upload Input -->
+    <input type="file" id="fileInput" accept="image/*">
+
+    <!-- Upload Box -->
+    <div class="upload-area" onclick="document.getElementById('fileInput').click();">
+        Tap to Upload Image
+    </div>
+
+    <input type="number" id="width" placeholder="Enter width (px)">
+    <input type="number" id="height" placeholder="Enter height (px)">
+
+    <button onclick="resizeImg()">Resize Image</button>
+
+    <canvas id="canvas"></canvas>
+
+    <a id="downloadLink" download="resized-image.png">Download Resized Image</a>
+</div>
+
+<script>
+    let img = new Image();
+
+    document.getElementById("fileInput").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function resizeImg() {
+        const w = parseInt(document.getElementById("width").value);
+        const h = parseInt(document.getElementById("height").value);
+
+        if (!w || !h) {
+            alert("Enter valid width & height");
+            return;
+        }
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = w;
+        canvas.height = h;
+
+        ctx.drawImage(img, 0, 0, w, h);
+
+        canvas.style.display = "block";
+
+        const download = document.getElementById("downloadLink");
+        download.href = canvas.toDataURL("image/png");
+        download.style.display = "inline-block";
+    }
+</script>
+
+</body>
+</html>
