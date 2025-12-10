@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultra‑Modern Image Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+    body {
+      background: radial-gradient(circle at 20% 20%, #2a2a72, #009ffd);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 550px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 35px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      animation: pop 0.7s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, #fff, #d4ffec);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .upload-box {
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 18px;
+      padding: 35px;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .upload-box:hover {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    #inputFile { display: none; }
+
+    select, button {
+      width: 100%;
+      padding: 15px;
+      border-radius: 15px;
+      border: none;
+      margin-top: 18px;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    select {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    button {
+      background: linear-gradient(45deg, #00e0ff, #4be1ec);
+      color: #000;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(45deg, #73f7ff, #b8ffff);
+    }
+
+    .preview {
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    .preview img {
+      max-width: 90%;
+      border-radius: 15px;
+      margin-top: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 25px; border-radius: 25px; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo" style="text-align:center;margin-bottom:20px;">
+        <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png" alt="Converter Logo" style="width:70px;filter:drop-shadow(0 0 8px #ffffff70);">
+      </div>
+      <h1>Image Converter</h1>
+
+    <input type="file" id="inputFile" accept="image/*" style="display:none;" />
+      <button onclick="document.getElementById('inputFile').click()" style="width:100%;padding:15px;border-radius:15px;border:none;background:#ffffff22;color:#fff;font-size:1rem;font-weight:500;cursor:pointer;">📤 Upload Image</button>
+    
+
+    <select id="formatSelect">
+      <option value="jpg">Convert to JPG</option>
+      <option value="png">Convert to PNG</option>
+      <option value="webp">Convert to WEBP</option>
+      <option value="gif">Convert to GIF</option>
+      <option value="bmp">Convert to BMP</option>
+      <option value="tiff">Convert to TIFF</option>
+    </select>
+
+    <button onclick="convertImage()">Convert Now</button>
+
+    <div class="preview" id="preview"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("inputFile");
+    const preview = document.getElementById("preview");
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const imgURL = URL.createObjectURL(file);
+        preview.innerHTML = `<img src="${imgURL}" alt="Preview">`;
+      }
+    });
+
+    function convertImage() {
+      const file = fileInput.files[0];
+      const format = document.getElementById("formatSelect").value;
+
+      if (!file) {
+        alert("Please upload an image first!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          const newImgURL = canvas.toDataURL(`image/${format}`);
+
+          const a = document.createElement("a");
+          a.href = newImgURL;
+          a.download = `converted.${format}`;
+          a.click();
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
