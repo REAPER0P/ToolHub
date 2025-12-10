@@ -9,7 +9,7 @@
     body {
         margin: 0;
         padding: 0;
-        background: #f4f9ff;
+        background: #eef5ff;
         font-family: "Poppins", sans-serif;
         display: flex;
         justify-content: center;
@@ -19,44 +19,55 @@
 
     .box {
         width: 95%;
-        max-width: 420px;
+        max-width: 450px;
         background: #ffffff;
         padding: 25px;
         border-radius: 15px;
         text-align: center;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
 
     .logo {
-        font-size: 32px;
+        font-size: 30px;
         font-weight: bold;
-        color: #0066ff;
-        margin-bottom: 15px;
+        color: #007bff;
+        margin-bottom: 8px;
     }
 
     #fileInput {
         display: none;
     }
 
-    .upload-area {
+    .upload-box {
         width: 100%;
         padding: 20px;
-        border: 2px dashed #007bff;
+        border: 2px dashed #0080ff;
         border-radius: 12px;
         cursor: pointer;
-        color: #007bff;
+        color: #0080ff;
         font-size: 16px;
         margin-bottom: 15px;
     }
 
-    input[type="number"] {
+    img {
         width: 100%;
-        padding: 12px;
-        margin-top: 12px;
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        font-size: 16px;
-        outline: none;
+        margin-top: 15px;
+        border-radius: 10px;
+        display: none;
+    }
+
+    .slider-group {
+        margin-top: 15px;
+        text-align: left;
+    }
+
+    .slider-group label {
+        font-weight: bold;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        margin-top: 8px;
     }
 
     button {
@@ -64,7 +75,7 @@
         margin-top: 18px;
         padding: 12px;
         font-size: 17px;
-        background: #007bff;
+        background: #0066ff;
         color: #fff;
         border: none;
         border-radius: 10px;
@@ -73,7 +84,7 @@
     }
 
     button:hover {
-        background: #0059c9;
+        background: #0051d4;
     }
 
     #downloadLink {
@@ -102,27 +113,41 @@
 <div class="box">
     <div class="logo">📐 Image Resizer</div>
 
-    <!-- Hidden Upload Input -->
+    <!-- Hidden Input -->
     <input type="file" id="fileInput" accept="image/*">
 
     <!-- Upload Box -->
-    <div class="upload-area" onclick="document.getElementById('fileInput').click();">
+    <div class="upload-box" onclick="document.getElementById('fileInput').click();">
         Tap to Upload Image
     </div>
 
-    <input type="number" id="width" placeholder="Enter width (px)">
-    <input type="number" id="height" placeholder="Enter height (px)">
+    <!-- Image Preview -->
+    <img id="preview">
+
+    <!-- Width Slider -->
+    <div class="slider-group">
+        <label>Width: <span id="widthValue">0</span> px</label>
+        <input type="range" id="widthSlider" min="50" max="2000" value="0">
+    </div>
+
+    <!-- Height Slider -->
+    <div class="slider-group">
+        <label>Height: <span id="heightValue">0</span> px</label>
+        <input type="range" id="heightSlider" min="50" max="2000" value="0">
+    </div>
 
     <button onclick="resizeImg()">Resize Image</button>
 
     <canvas id="canvas"></canvas>
-
     <a id="downloadLink" download="resized-image.png">Download Resized Image</a>
 </div>
 
 <script>
     let img = new Image();
+    let originalWidth = 0;
+    let originalHeight = 0;
 
+    // Upload Image
     document.getElementById("fileInput").addEventListener("change", function (event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -134,14 +159,34 @@
         reader.readAsDataURL(file);
     });
 
-    function resizeImg() {
-        const w = parseInt(document.getElementById("width").value);
-        const h = parseInt(document.getElementById("height").value);
+    // When image loads → show preview + sliders get original size
+    img.onload = function () {
+        document.getElementById("preview").src = img.src;
+        document.getElementById("preview").style.display = "block";
 
-        if (!w || !h) {
-            alert("Enter valid width & height");
-            return;
-        }
+        originalWidth = img.width;
+        originalHeight = img.height;
+
+        document.getElementById("widthSlider").value = img.width;
+        document.getElementById("heightSlider").value = img.height;
+
+        document.getElementById("widthValue").innerText = img.width;
+        document.getElementById("heightValue").innerText = img.height;
+    };
+
+    // Slider update values live
+    document.getElementById("widthSlider").addEventListener("input", function () {
+        document.getElementById("widthValue").innerText = this.value;
+    });
+
+    document.getElementById("heightSlider").addEventListener("input", function () {
+        document.getElementById("heightValue").innerText = this.value;
+    });
+
+    // Resize Function
+    function resizeImg() {
+        const w = parseInt(document.getElementById("widthSlider").value);
+        const h = parseInt(document.getElementById("heightSlider").value);
 
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
