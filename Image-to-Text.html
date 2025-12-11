@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Image to Text Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #dce7ff, #f0f4ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 550px;
+    border-radius: 25px;
+    padding: 40px 30px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  h1 {
+    color: #0057ff;
+    margin-bottom: 25px;
+    font-size: 2rem;
+  }
+
+  .upload-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg,#e0edff,#f8faff);
+    border: 2px dashed #007bff;
+    padding: 60px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    color: #0057ff;
+    font-weight: 600;
+    font-size: 1.2rem;
+    min-height: 180px;
+  }
+
+  .upload-box:hover {
+    background: linear-gradient(135deg,#cfe0ff,#e3f0ff);
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+
+  input[type="file"] { display: none; }
+
+  #preview {
+    width: 100%;
+    margin-top: 25px;
+    border-radius: 15px;
+    display: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+
+  #output {
+    background: #f6f9ff;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 25px;
+    display: none;
+    white-space: pre-wrap;
+    font-size: 14px;
+    text-align: left;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .copy-btn {
+    width: 100%;
+    padding: 14px;
+    background: #007bff;
+    color: white;
+    border: none;
+    font-weight: 600;
+    border-radius: 12px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .copy-btn:hover {
+    background: #005fe6;
+  }
+
+  .loader-box {
+    margin-top: 25px;
+    display: none;
+  }
+
+  .progress-text {
+    font-weight: 600;
+    color: #0057ff;
+    margin-bottom: 10px;
+  }
+
+  .progress-container {
+    width: 100%;
+    height: 14px;
+    background: #dce7ff;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #00b894;
+    border-radius: 20px;
+    transition: width 0.2s;
+  }
+
+  #output::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #output::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Image to Text</h1>
+
+  <label class="upload-box" for="imageInput">
+    📤 Tap to Upload Image
+    <span style="font-size:0.9rem; font-weight:400; margin-top:8px; color:#0057ff;">or drag & drop your image here</span>
+  </label>
+  <input type="file" id="imageInput" accept="image/*" />
+
+  <img id="preview" />
+
+  <div class="loader-box" id="loaderBox">
+    <div class="progress-text" id="progressText">Processing: 0%</div>
+    <div class="progress-container"><div id="progressFill" class="progress-fill"></div></div>
+  </div>
+
+  <div id="output"></div>
+  <button class="copy-btn" id="copyBtn" style="display:none;">Copy Text</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const preview = document.getElementById('preview');
+  const output = document.getElementById('output');
+  const loaderBox = document.getElementById('loaderBox');
+  const progressText = document.getElementById('progressText');
+  const progressFill = document.getElementById('progressFill');
+  const copyBtn = document.getElementById('copyBtn');
+
+  imageInput.addEventListener('change', async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+
+    output.style.display = 'none';
+    copyBtn.style.display = 'none';
+
+    loaderBox.style.display = 'block';
+    progressText.textContent = 'Processing: 0%';
+    progressFill.style.width = '0%';
+
+    Tesseract.recognize(file, 'eng', {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          let percent = Math.round(m.progress * 100);
+          progressText.textContent = 'Processing: ' + percent + '%';
+          progressFill.style.width = percent + '%';
+        }
+      }
+    })
+    .then(result => {
+      loaderBox.style.display = 'none';
+      output.style.display = 'block';
+      output.textContent = result.data.text || 'No text detected.';
+      copyBtn.style.display = 'block';
+    })
+    .catch(() => {
+      progressText.textContent = 'Error!';
+    });
+  });
+
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(output.textContent);
+    alert('Copied!');
+  });
+</script>
+
+</body>
+</html>
