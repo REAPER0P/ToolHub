@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Advanced Image Cropper Tool</title>
 
-<!-- CropperJS CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 
 <style>
@@ -49,12 +48,9 @@
     button{
         background:linear-gradient(45deg,#00e0ff,#4be1ec);
     }
-    button:hover{
-        transform:scale(1.02);
-    }
     select{
         background:rgba(255,255,255,0.25);
-        color:#fff;
+        color:white;
     }
     #imgBox{
         width:100%;
@@ -98,17 +94,17 @@
     <button onclick="downloadCrop()">Download Cropped Image</button>
 </div>
 
-<!-- CropperJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-let cropper;
+let cropper, isCircle = false;
 const upload = document.getElementById("upload");
 const preview = document.getElementById("preview");
 
 upload.addEventListener("change", e => {
     const file = e.target.files[0];
     if (!file) return;
+
     preview.src = URL.createObjectURL(file);
 
     if (cropper) cropper.destroy();
@@ -120,50 +116,67 @@ upload.addEventListener("change", e => {
             responsive: true,
             background: false,
             movable: true,
-            zoomable: true,
-            rotatable: false,
-            scalable: false,
+            zoomable: true
         });
     };
 });
 
-document.getElementById("ratio").addEventListener("change", (e)=>{
-    let val = e.target.value;
+document.getElementById("ratio").addEventListener("change", e => {
+    if (!cropper) return;
 
-    if(!cropper) return;
+    const val = e.target.value;
 
-    if(val === "free"){
+    if (val === "circle") {
+        isCircle = true;
+        cropper.setAspectRatio(1);
+    } 
+    else if (val === "free") {
+        isCircle = false;
         cropper.setAspectRatio(NaN);
     }
-    else if(val === "circle"){
-        cropper.setAspectRatio(1);
-        cropper.crop();
-
-        // Make circle crop using CSS mask
-        preview.style.borderRadius = "50%";
-    }
-    else{
-        preview.style.borderRadius = "0";
+    else {
+        isCircle = false;
         cropper.setAspectRatio(eval(val));
     }
 });
 
-function zoomIn(){
-    if(cropper) cropper.zoom(0.1);
-}
-function zoomOut(){
-    if(cropper) cropper.zoom(-0.1);
-}
+function zoomIn(){ if(cropper) cropper.zoom(0.1); }
+function zoomOut(){ if(cropper) cropper.zoom(-0.1); }
 
 function downloadCrop(){
-    if(!cropper) return alert("Upload image first!");
+    if (!cropper) return alert("Upload image first!");
 
-    let canvas = cropper.getCroppedCanvas();
+    const squareCanvas = cropper.getCroppedCanvas();
 
-    canvas.toBlob((blob)=>{
+    if (!isCircle) {
+        squareCanvas.toBlob(blob => {
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "cropped-image.png";
+            link.click();
+        });
+        return;
+    }
+
+    // Circle crop fix
+    const size = Math.min(squareCanvas.width, squareCanvas.height);
+    const circleCanvas = document.createElement("canvas");
+    const ctx = circleCanvas.getContext("2d");
+
+    circleCanvas.width = size;
+    circleCanvas.height = size;
+
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+
+    ctx.drawImage(squareCanvas, 0, 0, size, size);
+
+    circleCanvas.toBlob(blob => {
         let link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "cropped-image.png";
+        link.download = "circle-crop.png";
         link.click();
     });
 }
