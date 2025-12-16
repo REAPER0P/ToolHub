@@ -3,246 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Rotator & Flipper</title>
+<title>Image Rotator | Multi-Tool</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-* {
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+  background:linear-gradient(135deg,#eef5ff,#f6f9ff);
+  min-height:100vh;
+  padding:30px 15px;
+  color:#333;
+}
+.page{max-width:900px;margin:auto;}
+
+/* HEADER */
+.tool-header{text-align:center;margin-bottom:35px;}
+.tool-header h1{font-size:2.6rem;color:#0057ff;margin-bottom:10px;}
+.tool-header p{font-size:1.1rem;color:#3b6cff;max-width:650px;margin:auto;}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:26px;
+  padding:35px;
+  box-shadow:0 20px 50px rgba(0,87,255,0.15);
+  margin-bottom:35px;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #e4ecff, #f7f9ff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+/* UPLOAD */
+.upload-box{
+  border:3px dashed #007bff;
+  border-radius:22px;
+  padding:50px 25px;
+  text-align:center;
+  background:linear-gradient(135deg,#f5faff,#eef5ff);
+  cursor:pointer;
+  transition:.3s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.upload-box:hover{background:linear-gradient(135deg,#e8f1ff,#dfeaff);}
+.upload-box h3{font-size:1.6rem;color:#0057ff;margin-bottom:10px;}
+.upload-box p{color:#3b6cff;font-size:1rem;}
+input[type=file]{display:none;}
+
+/* CONTROLS */
+.controls{
+  margin-top:25px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+button{
+  padding:15px;
+  border-radius:14px;
+  border:none;
+  font-size:1rem;
+  background:linear-gradient(135deg,#007bff,#0057ff);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,87,255,0.3);
 }
 
-/* Main Card */
-.tool-container {
-  background: #ffffff;
-  width: 100%;
-  max-width: 540px;
-  border-radius: 26px;
-  padding: 32px 28px 36px;
-  box-shadow: 0 15px 40px rgba(0, 87, 255, 0.15);
-  text-align: center;
+/* PREVIEW */
+.preview{text-align:center;margin-top:25px;display:none;}
+.preview img{
+  max-width:100%;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* Title */
-.tool-container h1 {
-  color: #0057ff;
-  margin-bottom: 18px;
-  font-size: 1.9rem;
-}
+/* INFO */
+.info-section{margin-bottom:30px;}
+.info-section h2{color:#0057ff;margin-bottom:15px;font-size:1.6rem;}
+.info-section li{color:#3b6cff;line-height:1.7;font-size:1rem;}
+.info-section ul{padding-left:20px;}
 
-/* Upload Wrapper (important for centering) */
-.upload-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-/* Upload Box */
-.upload-box {
-  width: 100%;
-  max-width: 100%;
-  border: 2.5px dashed #007bff;
-  border-radius: 22px;
-  padding: 55px 20px;
-  background: linear-gradient(135deg, #eef4ff, #f9fbff);
-  color: #0057ff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.upload-box span {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 400;
-  margin-top: 6px;
-  color: #3b6cff;
-}
-
-.upload-box:hover {
-  background: linear-gradient(135deg, #dde8ff, #f0f5ff);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 87, 255, 0.18);
-}
-
-input[type="file"] {
-  display: none;
-}
-
-/* Preview */
-.preview-area {
-  margin-top: 22px;
-  display: none;
-}
-
-.preview-area img {
-  max-width: 100%;
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-}
-
-/* Controls */
-.controls {
-  display: none;
-  margin-top: 22px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.controls button {
-  flex: 1 1 calc(50% - 6px);
-  padding: 13px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #007bff, #0057ff);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.controls button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0,87,255,0.35);
-}
-
-/* Download */
-.download-btn {
-  width: 100%;
-  margin-top: 22px;
-  padding: 15px;
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #00c6a9, #00b894);
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  display: none;
-  transition: 0.25s;
-}
-
-.download-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(0,184,148,0.4);
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .controls button {
-    flex: 1 1 100%;
-  }
+/* MOBILE */
+@media(max-width:768px){
+  .tool-header h1{font-size:2rem;}
+  .controls{grid-template-columns:1fr;}
+  .card{padding:25px;}
 }
 </style>
 </head>
 
 <body>
+<div class="page">
 
-<div class="tool-container">
+<!-- HEADER -->
+<div class="tool-header">
   <h1>Image Rotator & Flipper</h1>
+  <p>Rotate or flip images online instantly. Adjust orientation and download the final image easily.</p>
+</div>
 
-  <div class="upload-wrapper">
-    <label class="upload-box" for="imageInput">
-      📤 Upload Image
-      <span>Click to select an image</span>
-    </label>
-  </div>
-  <input type="file" id="imageInput" accept="image/*">
+<!-- TOOL CARD -->
+<div class="card">
 
-  <div class="preview-area" id="previewArea">
-    <img id="previewImage">
-  </div>
+<label class="upload-box" for="upload">
+  <h3>Upload Image</h3>
+  <p>Click to select an image from your device</p>
+</label>
+<input type="file" id="upload" accept="image/*">
 
-  <div class="controls" id="controls">
-    <button onclick="rotateLeft()">⟲ Rotate Left</button>
-    <button onclick="rotateRight()">⟳ Rotate Right</button>
-    <button onclick="flipHorizontal()">↔ Flip Horizontal</button>
-    <button onclick="flipVertical()">↕ Flip Vertical</button>
-  </div>
+<div class="controls">
+  <button onclick="rotate(-90)">Rotate Left</button>
+  <button onclick="rotate(90)">Rotate Right</button>
+  <button onclick="flipX()">Flip Horizontal</button>
+  <button onclick="flipY()">Flip Vertical</button>
+</div>
 
-  <button class="download-btn" id="downloadBtn" onclick="downloadImage()">⬇ Download Image</button>
+<div class="preview" id="previewBox">
+  <canvas id="canvas"></canvas>
+</div>
+
+<div class="controls">
+  <button onclick="download()">Download Image</button>
+</div>
+
+</div>
+
+<!-- HOW TO USE -->
+<div class="card info-section">
+<h2>How to Use</h2>
+<ul>
+  <li>Upload an image from your device</li>
+  <li>Rotate left/right or flip horizontally/vertically</li>
+  <li>Preview the changes instantly</li>
+  <li>Download the final rotated image</li>
+</ul>
+</div>
+
+<!-- FEATURES -->
+<div class="card info-section">
+<h2>Features</h2>
+<ul>
+  <li>Rotate images by 90 degrees</li>
+  <li>Flip images horizontally or vertically</li>
+  <li>No server upload – works fully in browser</li>
+  <li>High-quality output without compression loss</li>
+  <li>Fully mobile responsive design</li>
+</ul>
+</div>
+
 </div>
 
 <script>
-const imageInput = document.getElementById('imageInput');
-const previewImage = document.getElementById('previewImage');
-const previewArea = document.getElementById('previewArea');
-const controls = document.getElementById('controls');
-const downloadBtn = document.getElementById('downloadBtn');
+const upload=document.getElementById("upload");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const previewBox=document.getElementById("previewBox");
 
-let rotation = 0;
-let scaleX = 1;
-let scaleY = 1;
-let originalImage = new Image();
+let img=new Image();
+let angle=0, flipH=1, flipV=1;
 
-imageInput.addEventListener('change', () => {
-  const file = imageInput.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    originalImage.src = reader.result;
-    previewImage.src = reader.result;
-    previewArea.style.display = 'block';
-    controls.style.display = 'flex';
-    downloadBtn.style.display = 'block';
-
-    rotation = 0;
-    scaleX = 1;
-    scaleY = 1;
-    applyTransform();
-  };
-  reader.readAsDataURL(file);
+upload.addEventListener("change",()=>{
+  const file=upload.files[0];
+  if(!file) return;
+  img.src=URL.createObjectURL(file);
+  img.onload=()=>{
+    angle=0;flipH=1;flipV=1;
+    draw();
+    previewBox.style.display="block";
+  }
 });
 
-function applyTransform() {
-  previewImage.style.transform =
-    `rotate(${rotation}deg) scale(${scaleX}, ${scaleY})`;
+function draw(){
+  const rad=angle*Math.PI/180;
+  const sin=Math.abs(Math.sin(rad));
+  const cos=Math.abs(Math.cos(rad));
+
+  canvas.width=img.width*cos+img.height*sin;
+  canvas.height=img.width*sin+img.height*cos;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.translate(canvas.width/2,canvas.height/2);
+  ctx.rotate(rad);
+  ctx.scale(flipH,flipV);
+  ctx.drawImage(img,-img.width/2,-img.height/2);
+  ctx.restore();
 }
 
-function rotateLeft() { rotation -= 90; applyTransform(); }
-function rotateRight() { rotation += 90; applyTransform(); }
-function flipHorizontal() { scaleX *= -1; applyTransform(); }
-function flipVertical() { scaleY *= -1; applyTransform(); }
+function rotate(val){angle+=val;draw();}
+function flipX(){flipH*=-1;draw();}
+function flipY(){flipV*=-1;draw();}
 
-function downloadImage() {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const angle = rotation * Math.PI / 180;
-
-  const w = originalImage.width;
-  const h = originalImage.height;
-
-  if (Math.abs(rotation % 180) === 90) {
-    canvas.width = h;
-    canvas.height = w;
-  } else {
-    canvas.width = w;
-    canvas.height = h;
-  }
-
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(angle);
-  ctx.scale(scaleX, scaleY);
-  ctx.drawImage(originalImage, -w / 2, -h / 2);
-
-  const link = document.createElement('a');
-  link.download = 'edited-image.png';
-  link.href = canvas.toDataURL();
+function download(){
+  const link=document.createElement("a");
+  link.download="rotated-image.png";
+  link.href=canvas.toDataURL();
   link.click();
 }
 </script>
 
 </body>
 </html>
-
