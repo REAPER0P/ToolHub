@@ -138,58 +138,86 @@ input[type=range]::-webkit-slider-thumb{
   box-shadow:0 4px 10px rgba(0,87,255,0.3);
 }
 
-/* PREVIEW CONTAINER - FIXED */
+/* PREVIEW CONTAINER - IMPROVED */
 .preview-container{
   margin-top:25px;
   display:none;
   text-align:center;
 }
-.preview-box{
+.preview-wrapper{
   display:inline-block;
   max-width:100%;
-  max-height:500px;
-  overflow:auto;
   border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
-  background:#f5faff;
-  padding:10px;
-}
-.preview-box::-webkit-scrollbar{
-  width:8px;
-  height:8px;
-}
-.preview-box::-webkit-scrollbar-track{
-  background:#e6efff;
-  border-radius:10px;
-}
-.preview-box::-webkit-scrollbar-thumb{
-  background:#007bff;
-  border-radius:10px;
+  background:#ffffff;
+  padding:15px;
+  position:relative;
 }
 #canvas{
   display:block;
-  max-width:none; /* Remove max-width restriction */
+  max-width:100%;
+  max-height:500px;
+  object-fit:contain;
+}
+
+/* ZOOM CONTROLS */
+.zoom-controls{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  background:rgba(0,87,255,0.9);
+  border-radius:10px;
+  padding:8px;
+  display:flex;
+  gap:10px;
+  z-index:10;
+}
+.zoom-btn{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:white;
+  border:none;
+  color:#0057ff;
+  font-size:1.2rem;
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.3s;
+}
+.zoom-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+.zoom-display{
+  color:white;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  font-size:0.9rem;
 }
 
 /* TRANSFORM DISPLAY */
 .transform-info{
-  position:sticky;
-  top:10px;
-  left:10px;
+  position:absolute;
+  top:20px;
+  left:20px;
   background:rgba(0,87,255,0.9);
   color:white;
-  padding:8px 15px;
+  padding:10px 15px;
   border-radius:10px;
-  font-size:0.9rem;
+  font-size:0.95rem;
   display:inline-block;
-  margin-bottom:10px;
   z-index:10;
 }
 
 /* FILE INFO */
 .file-info{
   margin-top:15px;
-  padding:12px;
+  padding:15px;
   background:#f5faff;
   border-radius:12px;
   text-align:left;
@@ -212,14 +240,30 @@ input[type=range]::-webkit-slider-thumb{
   .tool-header h1{font-size:2rem;}
   .controls{grid-template-columns:repeat(2, 1fr);}
   .card{padding:25px;}
-  .preview-box{
+  #canvas{
     max-height:400px;
+  }
+  .zoom-controls{
+    bottom:10px;
+    right:10px;
+  }
+  .transform-info{
+    top:10px;
+    left:10px;
+    font-size:0.85rem;
   }
 }
 @media(max-width:480px){
   .controls{grid-template-columns:1fr;}
-  .preview-box{
+  #canvas{
     max-height:350px;
+  }
+  .zoom-controls{
+    position:relative;
+    bottom:auto;
+    right:auto;
+    margin-top:10px;
+    justify-content:center;
   }
 }
 </style>
@@ -274,9 +318,14 @@ input[type=range]::-webkit-slider-thumb{
 </div>
 
 <div class="preview-container" id="previewContainer">
-  <div class="preview-box" id="previewBox">
+  <div class="preview-wrapper" id="previewWrapper">
     <div class="transform-info" id="transformInfo">Rotation: 0°</div>
     <canvas id="canvas"></canvas>
+    <div class="zoom-controls" id="zoomControls">
+      <button class="zoom-btn" onclick="zoomOut()">-</button>
+      <div class="zoom-display" id="zoomDisplay">100%</div>
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
+    </div>
   </div>
   <div class="file-info" id="fileInfo"></div>
 </div>
@@ -301,7 +350,7 @@ input[type=range]::-webkit-slider-thumb{
   <li>Upload an image from your device (JPG, PNG, GIF, WebP)</li>
   <li>Rotate left/right by 90° increments or use the slider for fine control</li>
   <li>Flip horizontally or vertically as needed</li>
-  <li>Preview changes instantly with transformation info</li>
+  <li>Use zoom controls to adjust preview size</li>
   <li>Reset to original or download the final image</li>
 </ul>
 </div>
@@ -312,6 +361,7 @@ input[type=range]::-webkit-slider-thumb{
 <ul>
   <li>Rotate images by 90° increments or any angle (-180° to 180°)</li>
   <li>Flip images horizontally or vertically</li>
+  <li>Zoom controls for better preview</li>
   <li>Real-time preview with transformation details</li>
   <li>File information display (dimensions, size)</li>
   <li>No server upload – works fully in browser</li>
@@ -328,12 +378,14 @@ const upload = document.getElementById("upload");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const previewContainer = document.getElementById("previewContainer");
-const previewBox = document.getElementById("previewBox");
+const previewWrapper = document.getElementById("previewWrapper");
 const sliderContainer = document.getElementById("sliderContainer");
 const angleSlider = document.getElementById("angleSlider");
 const angleValue = document.getElementById("angleValue");
 const transformInfo = document.getElementById("transformInfo");
 const fileInfo = document.getElementById("fileInfo");
+const zoomControls = document.getElementById("zoomControls");
+const zoomDisplay = document.getElementById("zoomDisplay");
 
 // State variables
 let img = new Image();
@@ -345,10 +397,12 @@ let originalWidth = 0;
 let originalHeight = 0;
 let fileName = "";
 let fileSize = 0;
+let zoomLevel = 1;
+let displayCanvas = null;
+let displayCtx = null;
 
 // Constants
-const MAX_PREVIEW_SIZE = 800; // Maximum preview size
-const PREVIEW_PADDING = 20; // Padding around image in preview
+const MAX_DISPLAY_SIZE = 500;
 
 // Initialize
 upload.addEventListener("change", handleImageUpload);
@@ -383,11 +437,19 @@ function handleImageUpload() {
     angle = 0;
     flipH = 1;
     flipV = 1;
+    zoomLevel = 1;
     angleSlider.value = 0;
+    
+    // Create display canvas
+    if (!displayCanvas) {
+      displayCanvas = document.createElement('canvas');
+      displayCtx = displayCanvas.getContext('2d');
+    }
     
     // Update UI
     previewContainer.style.display = "block";
     sliderContainer.style.display = "block";
+    zoomControls.style.display = "flex";
     
     // Show file info
     displayFileInfo();
@@ -402,25 +464,43 @@ function handleImageUpload() {
 }
 
 function draw() {
-  // Calculate the bounding box of rotated image
+  // Calculate rotated dimensions
   const rad = angle * Math.PI / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
   
-  // Calculate rotated dimensions (no cropping)
-  let rotatedWidth = Math.abs(originalWidth * Math.cos(rad)) + Math.abs(originalHeight * Math.sin(rad));
-  let rotatedHeight = Math.abs(originalWidth * Math.sin(rad)) + Math.abs(originalHeight * Math.cos(rad));
+  // Full rotated dimensions (for download)
+  const rotatedWidth = originalWidth * cos + originalHeight * sin;
+  const rotatedHeight = originalWidth * sin + originalHeight * cos;
   
-  // Set canvas to actual rotated size
-  canvas.width = rotatedWidth;
-  canvas.height = rotatedHeight;
+  // Calculate scale for display
+  let displayWidth = rotatedWidth;
+  let displayHeight = rotatedHeight;
   
-  // Clear canvas with white background
+  // Apply zoom
+  displayWidth *= zoomLevel;
+  displayHeight *= zoomLevel;
+  
+  // Limit to maximum display size
+  const maxSize = Math.max(displayWidth, displayHeight);
+  if (maxSize > MAX_DISPLAY_SIZE) {
+    const scale = MAX_DISPLAY_SIZE / maxSize;
+    displayWidth *= scale;
+    displayHeight *= scale;
+  }
+  
+  // Set canvas size
+  canvas.width = displayWidth;
+  canvas.height = displayHeight;
+  
+  // Clear with white background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Save context state
+  // Save context
   ctx.save();
   
-  // Move to center of canvas
+  // Move to center
   ctx.translate(canvas.width / 2, canvas.height / 2);
   
   // Apply rotation
@@ -429,43 +509,25 @@ function draw() {
   // Apply flips
   ctx.scale(flipH, flipV);
   
-  // Draw image centered
-  ctx.drawImage(img, -originalWidth / 2, -originalHeight / 2, originalWidth, originalHeight);
+  // Calculate scale for drawing
+  const drawScale = Math.min(canvas.width / rotatedWidth, canvas.height / rotatedHeight) * zoomLevel;
+  const drawWidth = originalWidth * drawScale;
+  const drawHeight = originalHeight * drawScale;
+  
+  // Draw image
+  ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
   
   // Restore context
   ctx.restore();
-  
-  // Scale canvas for preview if too large
-  scaleCanvasForPreview();
   
   // Update transformation info
   updateTransformInfo();
 }
 
-function scaleCanvasForPreview() {
-  const canvasElement = document.getElementById('canvas');
-  const boxWidth = previewBox.clientWidth - PREVIEW_PADDING * 2;
-  const boxHeight = previewBox.clientHeight - PREVIEW_PADDING * 2;
-  
-  // Get actual canvas dimensions
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
-  
-  // Calculate scale to fit in preview box
-  const scaleX = boxWidth / canvasWidth;
-  const scaleY = boxHeight / canvasHeight;
-  const scale = Math.min(scaleX, scaleY, 1); // Don't scale up beyond 100%
-  
-  // Apply CSS scaling for preview only
-  canvasElement.style.width = (canvasWidth * scale) + 'px';
-  canvasElement.style.height = (canvasHeight * scale) + 'px';
-  canvasElement.style.maxWidth = 'none';
-}
-
 function rotate(degrees) {
   angle += degrees;
-  angle = ((angle % 360) + 360) % 360; // Keep within 0-360
-  angleSlider.value = angle > 180 ? angle - 360 : angle; // Convert to -180 to 180 range
+  angle = ((angle % 360) + 360) % 360;
+  angleSlider.value = angle > 180 ? angle - 360 : angle;
   updateAngleDisplay();
   draw();
 }
@@ -508,21 +570,29 @@ function updateTransformInfo() {
   
   transformInfo.textContent = info || "No Transformations";
   
-  // Update dimensions info
-  const dimensions = `${canvas.width} × ${canvas.height}px`;
-  fileInfo.querySelector('p:nth-child(2)').textContent = `Current Dimensions: ${dimensions}`;
+  // Update zoom display
+  zoomDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
+}
+
+function zoomIn() {
+  zoomLevel = Math.min(zoomLevel + 0.25, 3); // Max 300% zoom
+  draw();
+}
+
+function zoomOut() {
+  zoomLevel = Math.max(zoomLevel - 0.25, 0.25); // Min 25% zoom
+  draw();
 }
 
 function displayFileInfo() {
   const originalDimensions = `${originalWidth} × ${originalHeight}px`;
   const size = formatFileSize(fileSize);
-  const currentDimensions = `${canvas.width} × ${canvas.height}px`;
   
   fileInfo.innerHTML = `
     <p><strong>File:</strong> ${fileName}</p>
-    <p><strong>Original Dimensions:</strong> ${originalDimensions}</p>
-    <p><strong>Current Dimensions:</strong> ${currentDimensions}</p>
+    <p><strong>Dimensions:</strong> ${originalDimensions}</p>
     <p><strong>Size:</strong> ${size}</p>
+    <p><strong>Preview Zoom:</strong> <span id="zoomInfo">${Math.round(zoomLevel * 100)}%</span></p>
   `;
   fileInfo.style.display = "block";
 }
@@ -542,6 +612,7 @@ function resetImage() {
   angle = 0;
   flipH = 1;
   flipV = 1;
+  zoomLevel = 1;
   angleSlider.value = 0;
   
   img.onload = function() {
@@ -556,14 +627,17 @@ function download() {
     return;
   }
   
-  // Create a temporary canvas for download (full quality)
+  // Create download canvas (full size, no zoom)
   const downloadCanvas = document.createElement('canvas');
   const downloadCtx = downloadCanvas.getContext('2d');
   
   // Calculate rotated dimensions
   const rad = angle * Math.PI / 180;
-  let rotatedWidth = Math.abs(originalWidth * Math.cos(rad)) + Math.abs(originalHeight * Math.sin(rad));
-  let rotatedHeight = Math.abs(originalWidth * Math.sin(rad)) + Math.abs(originalHeight * Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  
+  const rotatedWidth = originalWidth * cos + originalHeight * sin;
+  const rotatedHeight = originalWidth * sin + originalHeight * cos;
   
   downloadCanvas.width = rotatedWidth;
   downloadCanvas.height = rotatedHeight;
@@ -616,10 +690,10 @@ function download() {
   }, 2000);
 }
 
-// Handle window resize to adjust preview
+// Handle window resize
 window.addEventListener('resize', function() {
   if (previewContainer.style.display === 'block') {
-    scaleCanvasForPreview();
+    draw();
   }
 });
 
@@ -648,7 +722,7 @@ uploadBox.addEventListener('drop', (e) => {
   }
 });
 
-// Initialize angle display
+// Initialize
 updateAngleDisplay();
 </script>
 
