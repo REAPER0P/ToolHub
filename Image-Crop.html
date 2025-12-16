@@ -3,182 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced Image Cropper Tool</title>
+<title>Image Crop Tool | Multi-Tool</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 
 <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-    body{
-        background: radial-gradient(circle at 20% 20%, #2a2a72, #009ffd);
-        min-height:100vh;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        padding:20px;
-        color:#fff;
-    }
-    .container{
-        width:100%;
-        max-width:520px;
-        background:rgba(255,255,255,0.10);
-        backdrop-filter:blur(20px);
-        padding:25px;
-        border-radius:22px;
-        box-shadow:0 0 25px rgba(0,0,0,0.4);
-    }
-    h1{
-        text-align:center;
-        font-size:1.9rem;
-        margin-bottom:15px;
-        background:linear-gradient(45deg,#fff,#d4ffec);
-        -webkit-background-clip:text;
-        -webkit-text-fill-color:transparent;
-    }
-    button, select{
-        width:100%;
-        padding:12px;
-        border:none;
-        border-radius:12px;
-        margin:10px 0;
-        font-size:1rem;
-        font-weight:600;
-        cursor:pointer;
-    }
-    button{
-        background:linear-gradient(45deg,#00e0ff,#4be1ec);
-    }
-    select{
-        background:rgba(255,255,255,0.25);
-        color:white;
-    }
-    #imgBox{
-        width:100%;
-        max-height:350px;
-        margin-top:10px;
-        background:#000;
-        border-radius:15px;
-        overflow:hidden;
-    }
-    img{
-        width:100%;
-        display:block;
-        max-height:350px;
-    }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+  background:linear-gradient(135deg,#eef5ff,#f6f9ff);
+  min-height:100vh;
+  padding:30px 15px;
+  color:#333;
+}
+
+.page{max-width:900px;margin:auto;}
+
+/* HEADER */
+.tool-header{text-align:center;margin-bottom:35px;}
+.tool-header h1{font-size:2.6rem;color:#0057ff;margin-bottom:10px;}
+.tool-header p{font-size:1.1rem;color:#3b6cff;max-width:650px;margin:auto;}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:26px;
+  padding:35px;
+  box-shadow:0 20px 50px rgba(0,87,255,0.15);
+  margin-bottom:35px;
+}
+
+/* UPLOAD */
+.upload-box{
+  border:3px dashed #007bff;
+  border-radius:22px;
+  padding:50px 25px;
+  text-align:center;
+  background:linear-gradient(135deg,#f5faff,#eef5ff);
+  cursor:pointer;
+  transition:.3s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.upload-box:hover{background:linear-gradient(135deg,#e8f1ff,#dfeaff);}
+.upload-box h3{font-size:1.6rem;color:#0057ff;margin-bottom:10px;}
+.upload-box p{color:#3b6cff;}
+
+input[type=file]{display:none;}
+
+/* CONTROLS */
+.controls{
+  margin-top:25px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+select,button{
+  padding:15px;
+  border-radius:14px;
+  border:none;
+  font-size:1rem;
+}
+
+select{
+  border:2px solid #cce0ff;
+  background:#f9fbff;
+}
+
+button{
+  background:linear-gradient(135deg,#007bff,#0057ff);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,87,255,.3);
+}
+
+/* PREVIEW */
+.preview{
+  margin-top:25px;
+  display:none;
+}
+.preview img{
+  max-width:80%;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+/* INFO */
+.info-section h2{color:#0057ff;margin-bottom:15px;font-size:1.6rem;}
+.info-section li{color:#3b6cff;line-height:1.7;}
+.info-section ul{padding-left:20px;}
+
+@media(max-width:768px){
+  .tool-header h1{font-size:2rem;}
+  .controls{grid-template-columns:1fr;}
+  .card{padding:25px;}
+}
 </style>
 </head>
 
 <body>
-<div class="container">
-    <h1>Advanced Image Cropper</h1>
+<div class="page">
 
-    <input id="upload" type="file" accept="image/*" style="display:none;">
-    <button onclick="document.getElementById('upload').click()">📤 Upload Image</button>
+<!-- HEADER -->
+<div class="tool-header">
+  <h1>Image Crop Tool</h1>
+  <p>Crop images precisely by selecting the exact area you want. Supports free crop, fixed ratios, and circle cropping.</p>
+</div>
 
-    <select id="ratio">
-        <option value="free">Free Crop</option>
-        <option value="1">1:1 Square</option>
-        <option value="16/9">16:9</option>
-        <option value="4/3">4:3</option>
-        <option value="3/2">3:2</option>
-        <option value="circle">Circle Crop</option>
-    </select>
+<!-- TOOL -->
+<div class="card">
 
-    <button onclick="zoomIn()">🔍 Zoom In</button>
-    <button onclick="zoomOut()">🔍 Zoom Out</button>
+<label class="upload-box" for="upload">
+  <h3>Upload Image</h3>
+  <p>Click to select an image from your device</p>
+</label>
+<input id="upload" type="file" accept="image/*">
 
-    <div id="imgBox">
-        <img id="preview">
-    </div>
+<div class="controls">
+  <select id="ratio">
+    <option value="free">Free Crop</option>
+    <option value="1">1:1 Square</option>
+    <option value="16/9">16:9</option>
+    <option value="4/3">4:3</option>
+    <option value="3/2">3:2</option>
+    <option value="circle">Circle Crop</option>
+  </select>
 
-    <button onclick="downloadCrop()">Download Cropped Image</button>
+  <button onclick="downloadCrop()">Crop & Download</button>
+</div>
+
+<div class="controls">
+  <button onclick="zoomIn()">🔍 Zoom In</button>
+  <button onclick="zoomOut()">🔍 Zoom Out</button>
+</div>
+
+<div class="preview" id="previewBox">
+  <img id="preview">
+</div>
+
+</div>
+
+<!-- HOW TO USE -->
+<div class="card info-section">
+<h2>How to Use</h2>
+<ul>
+  <li>Upload an image from your device</li>
+  <li>Select crop type or aspect ratio</li>
+  <li>Adjust crop area and download image</li>
+</ul>
+</div>
+
+<!-- FEATURES -->
+<div class="card info-section">
+<h2>Features</h2>
+<ul>
+  <li>Free & fixed aspect ratio cropping</li>
+  <li>Circle crop support</li>
+  <li>Zoom & pan controls</li>
+  <li>No server upload – 100% browser based</li>
+</ul>
+</div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>
-let cropper, isCircle = false;
-const upload = document.getElementById("upload");
-const preview = document.getElementById("preview");
+let cropper,isCircle=false;
+const upload=document.getElementById("upload");
+const preview=document.getElementById("preview");
+const previewBox=document.getElementById("previewBox");
+const ratio=document.getElementById("ratio");
 
-upload.addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
+upload.addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(!file) return;
 
-    preview.src = URL.createObjectURL(file);
+  preview.src=URL.createObjectURL(file);
+  previewBox.style.display="block";
 
-    if (cropper) cropper.destroy();
+  if(cropper) cropper.destroy();
 
-    preview.onload = () => {
-        cropper = new Cropper(preview, {
-            viewMode: 1,
-            dragMode: "move",
-            responsive: true,
-            background: false,
-            movable: true,
-            zoomable: true
-        });
-    };
+  preview.onload=()=>{
+    cropper=new Cropper(preview,{
+      viewMode:1,
+      dragMode:"move",
+      responsive:true,
+      background:false,
+      zoomable:true,
+      movable:true
+    });
+  };
 });
 
-document.getElementById("ratio").addEventListener("change", e => {
-    if (!cropper) return;
+ratio.addEventListener("change",()=>{
+  if(!cropper) return;
+  const val=ratio.value;
 
-    const val = e.target.value;
-
-    if (val === "circle") {
-        isCircle = true;
-        cropper.setAspectRatio(1);
-    } 
-    else if (val === "free") {
-        isCircle = false;
-        cropper.setAspectRatio(NaN);
-    }
-    else {
-        isCircle = false;
-        cropper.setAspectRatio(eval(val));
-    }
+  if(val==="circle"){
+    isCircle=true;
+    cropper.setAspectRatio(1);
+  }else if(val==="free"){
+    isCircle=false;
+    cropper.setAspectRatio(NaN);
+  }else{
+    isCircle=false;
+    cropper.setAspectRatio(eval(val));
+  }
 });
 
-function zoomIn(){ if(cropper) cropper.zoom(0.1); }
-function zoomOut(){ if(cropper) cropper.zoom(-0.1); }
+function zoomIn(){if(cropper) cropper.zoom(0.1);}
+function zoomOut(){if(cropper) cropper.zoom(-0.1);}
 
 function downloadCrop(){
-    if (!cropper) return alert("Upload image first!");
+  if(!cropper) return alert("Upload image first!");
 
-    const squareCanvas = cropper.getCroppedCanvas();
+  const canvas=cropper.getCroppedCanvas();
 
-    if (!isCircle) {
-        squareCanvas.toBlob(blob => {
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "cropped-image.png";
-            link.click();
-        });
-        return;
-    }
-
-    // Circle crop fix
-    const size = Math.min(squareCanvas.width, squareCanvas.height);
-    const circleCanvas = document.createElement("canvas");
-    const ctx = circleCanvas.getContext("2d");
-
-    circleCanvas.width = size;
-    circleCanvas.height = size;
-
-    ctx.beginPath();
-    ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-
-    ctx.drawImage(squareCanvas, 0, 0, size, size);
-
-    circleCanvas.toBlob(blob => {
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "circle-crop.png";
-        link.click();
+  if(!isCircle){
+    canvas.toBlob(b=>{
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(b);
+      a.download="cropped-image.png";
+      a.click();
     });
+    return;
+  }
+
+  const size=Math.min(canvas.width,canvas.height);
+  const c=document.createElement("canvas");
+  const ctx=c.getContext("2d");
+  c.width=c.height=size;
+
+  ctx.beginPath();
+  ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
+  ctx.clip();
+  ctx.drawImage(canvas,0,0,size,size);
+
+  c.toBlob(b=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="circle-crop.png";
+    a.click();
+  });
 }
 </script>
 </body>
