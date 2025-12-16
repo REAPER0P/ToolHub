@@ -138,31 +138,52 @@ input[type=range]::-webkit-slider-thumb{
   box-shadow:0 4px 10px rgba(0,87,255,0.3);
 }
 
-/* PREVIEW */
-.preview{
-  text-align:center;
+/* PREVIEW CONTAINER - FIXED */
+.preview-container{
   margin-top:25px;
   display:none;
-  position:relative;
+  text-align:center;
 }
-.preview canvas{
+.preview-box{
+  display:inline-block;
   max-width:100%;
-  max-height:400px;
+  max-height:500px;
+  overflow:auto;
   border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  background:#f5faff;
+  padding:10px;
+}
+.preview-box::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+.preview-box::-webkit-scrollbar-track{
+  background:#e6efff;
+  border-radius:10px;
+}
+.preview-box::-webkit-scrollbar-thumb{
+  background:#007bff;
+  border-radius:10px;
+}
+#canvas{
+  display:block;
+  max-width:none; /* Remove max-width restriction */
 }
 
 /* TRANSFORM DISPLAY */
 .transform-info{
-  position:absolute;
-  top:15px;
-  right:15px;
+  position:sticky;
+  top:10px;
+  left:10px;
   background:rgba(0,87,255,0.9);
   color:white;
   padding:8px 15px;
   border-radius:10px;
   font-size:0.9rem;
-  display:none;
+  display:inline-block;
+  margin-bottom:10px;
+  z-index:10;
 }
 
 /* FILE INFO */
@@ -171,8 +192,8 @@ input[type=range]::-webkit-slider-thumb{
   padding:12px;
   background:#f5faff;
   border-radius:12px;
-  display:none;
   text-align:left;
+  display:none;
 }
 .file-info p{
   color:#3b6cff;
@@ -191,9 +212,15 @@ input[type=range]::-webkit-slider-thumb{
   .tool-header h1{font-size:2rem;}
   .controls{grid-template-columns:repeat(2, 1fr);}
   .card{padding:25px;}
+  .preview-box{
+    max-height:400px;
+  }
 }
 @media(max-width:480px){
   .controls{grid-template-columns:1fr;}
+  .preview-box{
+    max-height:350px;
+  }
 }
 </style>
 </head>
@@ -246,9 +273,11 @@ input[type=range]::-webkit-slider-thumb{
   </div>
 </div>
 
-<div class="preview" id="previewBox">
-  <div class="transform-info" id="transformInfo">Rotation: 0°</div>
-  <canvas id="canvas"></canvas>
+<div class="preview-container" id="previewContainer">
+  <div class="preview-box" id="previewBox">
+    <div class="transform-info" id="transformInfo">Rotation: 0°</div>
+    <canvas id="canvas"></canvas>
+  </div>
   <div class="file-info" id="fileInfo"></div>
 </div>
 
@@ -298,6 +327,7 @@ input[type=range]::-webkit-slider-thumb{
 const upload = document.getElementById("upload");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const previewContainer = document.getElementById("previewContainer");
 const previewBox = document.getElementById("previewBox");
 const sliderContainer = document.getElementById("sliderContainer");
 const angleSlider = document.getElementById("angleSlider");
@@ -315,6 +345,10 @@ let originalWidth = 0;
 let originalHeight = 0;
 let fileName = "";
 let fileSize = 0;
+
+// Constants
+const MAX_PREVIEW_SIZE = 800; // Maximum preview size
+const PREVIEW_PADDING = 20; // Padding around image in preview
 
 // Initialize
 upload.addEventListener("change", handleImageUpload);
@@ -352,9 +386,8 @@ function handleImageUpload() {
     angleSlider.value = 0;
     
     // Update UI
-    previewBox.style.display = "block";
+    previewContainer.style.display = "block";
     sliderContainer.style.display = "block";
-    transformInfo.style.display = "block";
     
     // Show file info
     displayFileInfo();
@@ -369,42 +402,25 @@ function handleImageUpload() {
 }
 
 function draw() {
-  // Calculate canvas size based on transformations
+  // Calculate the bounding box of rotated image
   const rad = angle * Math.PI / 180;
-  const sin = Math.abs(Math.sin(rad));
-  const cos = Math.abs(Math.cos(rad));
   
-  // Calculate new dimensions
-  let newWidth, newHeight;
+  // Calculate rotated dimensions (no cropping)
+  let rotatedWidth = Math.abs(originalWidth * Math.cos(rad)) + Math.abs(originalHeight * Math.sin(rad));
+  let rotatedHeight = Math.abs(originalWidth * Math.sin(rad)) + Math.abs(originalHeight * Math.cos(rad));
   
-  if (Math.abs(angle % 180) === 90) {
-    // When rotated 90° or 270°, swap dimensions
-    newWidth = originalHeight * cos + originalWidth * sin;
-    newHeight = originalWidth * cos + originalHeight * sin;
-  } else {
-    newWidth = originalWidth * cos + originalHeight * sin;
-    newHeight = originalWidth * sin + originalHeight * cos;
-  }
+  // Set canvas to actual rotated size
+  canvas.width = rotatedWidth;
+  canvas.height = rotatedHeight;
   
-  // Set canvas dimensions (limit for display)
-  const maxDisplaySize = 500;
-  let displayWidth = newWidth;
-  let displayHeight = newHeight;
+  // Clear canvas with white background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  if (displayWidth > maxDisplaySize || displayHeight > maxDisplaySize) {
-    const ratio = Math.min(maxDisplaySize / displayWidth, maxDisplaySize / displayHeight);
-    displayWidth *= ratio;
-    displayHeight *= ratio;
-  }
-  
-  canvas.width = displayWidth;
-  canvas.height = displayHeight;
-  
-  // Clear and draw
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Save context state
   ctx.save();
   
-  // Move to center
+  // Move to center of canvas
   ctx.translate(canvas.width / 2, canvas.height / 2);
   
   // Apply rotation
@@ -413,20 +429,37 @@ function draw() {
   // Apply flips
   ctx.scale(flipH, flipV);
   
-  // Calculate scale for display
-  const scaleX = displayWidth / newWidth;
-  const scaleY = displayHeight / newHeight;
-  const scale = Math.min(scaleX, scaleY);
+  // Draw image centered
+  ctx.drawImage(img, -originalWidth / 2, -originalHeight / 2, originalWidth, originalHeight);
   
-  // Draw image
-  const drawWidth = newWidth * scale;
-  const drawHeight = newHeight * scale;
-  ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-  
+  // Restore context
   ctx.restore();
+  
+  // Scale canvas for preview if too large
+  scaleCanvasForPreview();
   
   // Update transformation info
   updateTransformInfo();
+}
+
+function scaleCanvasForPreview() {
+  const canvasElement = document.getElementById('canvas');
+  const boxWidth = previewBox.clientWidth - PREVIEW_PADDING * 2;
+  const boxHeight = previewBox.clientHeight - PREVIEW_PADDING * 2;
+  
+  // Get actual canvas dimensions
+  const canvasWidth = canvas.width;
+  const canvasHeight = canvas.height;
+  
+  // Calculate scale to fit in preview box
+  const scaleX = boxWidth / canvasWidth;
+  const scaleY = boxHeight / canvasHeight;
+  const scale = Math.min(scaleX, scaleY, 1); // Don't scale up beyond 100%
+  
+  // Apply CSS scaling for preview only
+  canvasElement.style.width = (canvasWidth * scale) + 'px';
+  canvasElement.style.height = (canvasHeight * scale) + 'px';
+  canvasElement.style.maxWidth = 'none';
 }
 
 function rotate(degrees) {
@@ -474,15 +507,21 @@ function updateTransformInfo() {
   if (flipV === -1) info += "| Flipped Vertical";
   
   transformInfo.textContent = info || "No Transformations";
+  
+  // Update dimensions info
+  const dimensions = `${canvas.width} × ${canvas.height}px`;
+  fileInfo.querySelector('p:nth-child(2)').textContent = `Current Dimensions: ${dimensions}`;
 }
 
 function displayFileInfo() {
-  const dimensions = `${originalWidth} × ${originalHeight}px`;
+  const originalDimensions = `${originalWidth} × ${originalHeight}px`;
   const size = formatFileSize(fileSize);
+  const currentDimensions = `${canvas.width} × ${canvas.height}px`;
   
   fileInfo.innerHTML = `
     <p><strong>File:</strong> ${fileName}</p>
-    <p><strong>Dimensions:</strong> ${dimensions}</p>
+    <p><strong>Original Dimensions:</strong> ${originalDimensions}</p>
+    <p><strong>Current Dimensions:</strong> ${currentDimensions}</p>
     <p><strong>Size:</strong> ${size}</p>
   `;
   fileInfo.style.display = "block";
@@ -517,27 +556,21 @@ function download() {
     return;
   }
   
-  // Create a temporary canvas for high-quality download
+  // Create a temporary canvas for download (full quality)
   const downloadCanvas = document.createElement('canvas');
   const downloadCtx = downloadCanvas.getContext('2d');
   
-  // Calculate actual dimensions (not scaled for display)
+  // Calculate rotated dimensions
   const rad = angle * Math.PI / 180;
-  const sin = Math.abs(Math.sin(rad));
-  const cos = Math.abs(Math.cos(rad));
+  let rotatedWidth = Math.abs(originalWidth * Math.cos(rad)) + Math.abs(originalHeight * Math.sin(rad));
+  let rotatedHeight = Math.abs(originalWidth * Math.sin(rad)) + Math.abs(originalHeight * Math.cos(rad));
   
-  let downloadWidth, downloadHeight;
+  downloadCanvas.width = rotatedWidth;
+  downloadCanvas.height = rotatedHeight;
   
-  if (Math.abs(angle % 180) === 90) {
-    downloadWidth = originalHeight * cos + originalWidth * sin;
-    downloadHeight = originalWidth * cos + originalHeight * sin;
-  } else {
-    downloadWidth = originalWidth * cos + originalHeight * sin;
-    downloadHeight = originalWidth * sin + originalHeight * cos;
-  }
-  
-  downloadCanvas.width = downloadWidth;
-  downloadCanvas.height = downloadHeight;
+  // White background
+  downloadCtx.fillStyle = '#ffffff';
+  downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
   
   // Apply transformations
   downloadCtx.save();
@@ -563,7 +596,7 @@ function download() {
   const mimeType = mimeTypes[extension] || 'image/png';
   const finalExtension = extension === 'jpg' || extension === 'jpeg' ? 'jpg' : extension;
   
-  link.download = `transformed-${Date.now()}.${finalExtension}`;
+  link.download = `rotated-image-${Date.now()}.${finalExtension}`;
   link.href = downloadCanvas.toDataURL(mimeType, 1.0);
   
   // Trigger download
@@ -582,6 +615,13 @@ function download() {
     downloadBtn.style.background = 'linear-gradient(135deg,#ff6b6b,#ff4757)';
   }, 2000);
 }
+
+// Handle window resize to adjust preview
+window.addEventListener('resize', function() {
+  if (previewContainer.style.display === 'block') {
+    scaleCanvasForPreview();
+  }
+});
 
 // Add drag and drop support
 const uploadBox = document.querySelector('.upload-box');
