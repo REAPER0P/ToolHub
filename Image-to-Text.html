@@ -1,210 +1,529 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Image to Text Tool</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image to Text Tool | Multi-Tool</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.0/dist/tesseract.min.js"></script>
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #dce7ff, #f0f4ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
+body{
+  background:linear-gradient(135deg,#eef5ff,#f6f9ff);
+  min-height:100vh;
+  padding:30px 15px;
+  color:#333;
+}
 
-  .container {
-    background: #ffffff;
-    width: 100%;
-    max-width: 550px;
-    border-radius: 25px;
-    padding: 40px 30px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
-    text-align: center;
-  }
+.page{max-width:900px;margin:auto;}
 
-  h1 {
-    color: #0057ff;
-    margin-bottom: 25px;
-    font-size: 2rem;
-  }
+/* HEADER */
+.tool-header{text-align:center;margin-bottom:35px;}
+.tool-header h1{font-size:2.6rem;color:#0057ff;margin-bottom:10px;}
+.tool-header p{font-size:1.1rem;color:#3b6cff;max-width:650px;margin:auto;}
 
-  .upload-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg,#e0edff,#f8faff);
-    border: 2px dashed #007bff;
-    padding: 60px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: 0.3s ease;
-    color: #0057ff;
-    font-weight: 600;
-    font-size: 1.2rem;
-    min-height: 180px;
-  }
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:26px;
+  padding:35px;
+  box-shadow:0 20px 50px rgba(0,87,255,0.15);
+  margin-bottom:35px;
+}
 
-  .upload-box:hover {
-    background: linear-gradient(135deg,#cfe0ff,#e3f0ff);
-    transform: scale(1.03);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
+/* UPLOAD */
+.upload-box{
+  border:3px dashed #007bff;
+  border-radius:22px;
+  padding:50px 25px;
+  text-align:center;
+  background:linear-gradient(135deg,#f5faff,#eef5ff);
+  cursor:pointer;
+  transition:.3s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.upload-box:hover{background:linear-gradient(135deg,#e8f1ff,#dfeaff);}
+.upload-box h3{font-size:1.6rem;color:#0057ff;margin-bottom:10px;}
+.upload-box p{color:#3b6cff;font-size:1rem;}
+input[type=file]{display:none;}
 
-  input[type="file"] { display: none; }
+/* CONTROLS */
+.controls{
+  margin-top:25px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:15px;
+}
+button{
+  padding:15px;
+  border-radius:14px;
+  border:none;
+  font-size:1rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.extract-btn{
+  background:linear-gradient(135deg,#007bff,#0057ff);
+  color:#fff;
+}
+.copy-btn{
+  background:linear-gradient(135deg,#00c6a9,#00b894);
+  color:#fff;
+}
+.settings-btn{
+  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+  color:#fff;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,87,255,0.3);
+}
 
-  #preview {
-    width: 100%;
-    margin-top: 25px;
-    border-radius: 15px;
-    display: none;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  }
+/* SETTINGS PANEL */
+.settings-panel{
+  display:none;
+  background:#f5faff;
+  border-radius:16px;
+  padding:20px;
+  margin-top:20px;
+  border:2px solid #cce0ff;
+}
+.setting-group{
+  margin-bottom:15px;
+}
+.setting-group label{
+  display:block;
+  color:#0057ff;
+  font-weight:600;
+  margin-bottom:8px;
+  font-size:0.95rem;
+}
+.setting-group select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:2px solid #cce0ff;
+  background:#fff;
+  color:#333;
+  font-size:1rem;
+}
 
-  #output {
-    background: #f6f9ff;
-    padding: 15px;
-    border-radius: 15px;
-    margin-top: 25px;
-    display: none;
-    white-space: pre-wrap;
-    font-size: 14px;
-    text-align: left;
-    max-height: 250px;
-    overflow-y: auto;
-  }
+/* PREVIEW */
+.preview{text-align:center;margin-top:25px;display:none;}
+.preview img{
+  max-width:100%;
+  max-height:300px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  object-fit:contain;
+}
 
-  .copy-btn {
-    width: 100%;
-    padding: 14px;
-    background: #007bff;
-    color: white;
-    border: none;
-    font-weight: 600;
-    border-radius: 12px;
-    margin-top: 20px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
+/* LOADER */
+.loader{
+  margin-top:25px;
+  display:none;
+  text-align:center;
+  color:#0057ff;
+  font-weight:600;
+}
+.progress-bar{
+  width:100%;
+  height:14px;
+  background:#e6efff;
+  border-radius:20px;
+  margin-top:10px;
+  overflow:hidden;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(135deg,#007bff,#0057ff);
+  transition:width .3s;
+}
 
-  .copy-btn:hover {
-    background: #005fe6;
-  }
+/* OUTPUT */
+.output{
+  margin-top:25px;
+  display:none;
+  padding:18px;
+  border-radius:16px;
+  border:2px solid #cce0ff;
+  background:#f9fbff;
+  white-space:pre-wrap;
+  color:#333;
+  max-height:400px;
+  overflow-y:auto;
+  line-height:1.6;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-  .loader-box {
-    margin-top: 25px;
-    display: none;
-  }
+/* INFO SECTIONS */
+.info-section{margin-bottom:30px;}
+.info-section h2{
+  color:#0057ff;
+  margin-bottom:15px;
+  font-size:1.6rem;
+}
+.info-section p,.info-section li{
+  color:#3b6cff;
+  line-height:1.7;
+  font-size:1rem;
+}
+.info-section ul{padding-left:20px;}
 
-  .progress-text {
-    font-weight: 600;
-    color: #0057ff;
-    margin-bottom: 10px;
-  }
+/* TIP BOX */
+.tip-box{
+  background:linear-gradient(135deg,#fff9db,#ffeaa7);
+  border-left:4px solid#fdcb6e;
+  padding:15px;
+  border-radius:12px;
+  margin-top:20px;
+}
+.tip-box p{
+  color:#d35400;
+  margin:0;
+  font-size:0.95rem;
+}
 
-  .progress-container {
-    width: 100%;
-    height: 14px;
-    background: #dce7ff;
-    border-radius: 20px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #00b894;
-    border-radius: 20px;
-    transition: width 0.2s;
-  }
-
-  #output::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  #output::-webkit-scrollbar-thumb {
-    background-color: #007bff;
-    border-radius: 3px;
-  }
+/* MOBILE */
+@media(max-width:768px){
+  .tool-header h1{font-size:2rem;}
+  .controls{grid-template-columns:1fr;}
+  .card{padding:25px;}
+}
 </style>
 </head>
+
 <body>
+<div class="page">
 
-<div class="container">
-  <h1>Image to Text</h1>
-
-  <label class="upload-box" for="imageInput">
-    📤 Tap to Upload Image
-    <span style="font-size:0.9rem; font-weight:400; margin-top:8px; color:#0057ff;">or drag & drop your image here</span>
-  </label>
-  <input type="file" id="imageInput" accept="image/*" />
-
-  <img id="preview" />
-
-  <div class="loader-box" id="loaderBox">
-    <div class="progress-text" id="progressText">Processing: 0%</div>
-    <div class="progress-container"><div id="progressFill" class="progress-fill"></div></div>
-  </div>
-
-  <div id="output"></div>
-  <button class="copy-btn" id="copyBtn" style="display:none;">Copy Text</button>
+<!-- HEADER -->
+<div class="tool-header">
+  <h1>Image to Text Converter</h1>
+  <p>Extract readable text from images instantly using powerful OCR technology. Works fully in your browser.</p>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+<!-- TOOL -->
+<div class="card">
+
+<label class="upload-box" for="upload">
+  <h3>Upload Image</h3>
+  <p>Click to select an image containing text</p>
+</label>
+<input id="upload" type="file" accept="image/*">
+
+<div class="controls">
+  <button class="extract-btn" onclick="extractText()">Extract Text</button>
+  <button class="copy-btn" onclick="copyText()">Copy Text</button>
+  <button class="settings-btn" onclick="toggleSettings()">Settings</button>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="setting-group">
+    <label for="languageSelect">Language</label>
+    <select id="languageSelect">
+      <option value="eng" selected>English</option>
+      <option value="fra">French</option>
+      <option value="spa">Spanish</option>
+      <option value="deu">German</option>
+      <option value="chi_sim">Chinese Simplified</option>
+      <option value="hin">Hindi</option>
+      <option value="ara">Arabic</option>
+      <option value="eng+fra">English + French</option>
+      <option value="eng+spa">English + Spanish</option>
+    </select>
+  </div>
+  
+  <div class="setting-group">
+    <label for="modeSelect">Text Recognition Mode</label>
+    <select id="modeSelect">
+      <option value="3" selected>Auto (Default)</option>
+      <option value="6">Single Column Text</option>
+      <option value="7">Single Line Text</option>
+      <option value="8">Single Word</option>
+      <option value="11">Sparse Text</option>
+    </select>
+  </div>
+</div>
+
+<div class="tip-box">
+  <p><strong>Tip:</strong> For better results, use clear, high-contrast images with minimal background noise.</p>
+</div>
+
+<div class="preview" id="previewBox">
+  <img id="preview">
+</div>
+
+<div class="loader" id="loader">
+  Processing: <span id="percent">0%</span>
+  <div class="progress-bar">
+    <div class="progress" id="progress"></div>
+  </div>
+</div>
+
+<div class="output" id="output"></div>
+
+</div>
+
+<!-- HOW TO USE -->
+<div class="card info-section">
+  <h2>How to Use for Best Results</h2>
+  <ul>
+    <li><strong>Use clear images:</strong> Ensure text is clearly visible and not blurry</li>
+    <li><strong>Good lighting:</strong> Avoid shadows on the text</li>
+    <li><strong>High contrast:</strong> Dark text on light background works best</li>
+    <li><strong>Straight alignment:</strong> Keep text horizontally aligned</li>
+    <li><strong>File formats:</strong> Use PNG, JPG, or JPEG for best results</li>
+  </ul>
+</div>
+
+<!-- FEATURES -->
+<div class="card info-section">
+  <h2>Features</h2>
+  <ul>
+    <li>Advanced OCR powered by Tesseract.js v4.0.0</li>
+    <li>Multi-language support for better accuracy</li>
+    <li>Real-time percentage progress indicator</li>
+    <li>No server upload – works 100% in browser</li>
+    <li>Supports scanned documents & photos</li>
+    <li>Mobile-friendly and fast processing</li>
+  </ul>
+</div>
+
+</div>
+
 <script>
-  const imageInput = document.getElementById('imageInput');
-  const preview = document.getElementById('preview');
-  const output = document.getElementById('output');
-  const loaderBox = document.getElementById('loaderBox');
-  const progressText = document.getElementById('progressText');
-  const progressFill = document.getElementById('progressFill');
-  const copyBtn = document.getElementById('copyBtn');
+// DOM Elements
+const upload = document.getElementById("upload");
+const preview = document.getElementById("preview");
+const previewBox = document.getElementById("previewBox");
+const loader = document.getElementById("loader");
+const percent = document.getElementById("percent");
+const progress = document.getElementById("progress");
+const output = document.getElementById("output");
+const settingsPanel = document.getElementById("settingsPanel");
 
-  imageInput.addEventListener('change', async () => {
-    const file = imageInput.files[0];
-    if (!file) return;
+// State variables
+let isProcessing = false;
+let worker = null;
 
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
+// File upload handler
+upload.addEventListener("change", function() {
+  const file = upload.files[0];
+  if(!file) return;
+  
+  // Check file size (max 10MB)
+  if(file.size > 10 * 1024 * 1024) {
+    alert("File too large! Please select an image under 10MB.");
+    upload.value = '';
+    return;
+  }
+  
+  // Check file type
+  const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/bmp', 'image/tiff', 'image/webp', 'image/gif'];
+  if(!validTypes.includes(file.type.toLowerCase()) && !file.name.match(/\.(jpg|jpeg|png|bmp|tiff|webp|gif)$/i)) {
+    alert("Please select a valid image file (JPEG, PNG, BMP, TIFF, WebP, GIF).");
+    upload.value = '';
+    return;
+  }
+  
+  preview.src = URL.createObjectURL(file);
+  previewBox.style.display = "block";
+});
 
-    output.style.display = 'none';
-    copyBtn.style.display = 'none';
+// Toggle settings panel
+function toggleSettings() {
+  if(settingsPanel.style.display === "block") {
+    settingsPanel.style.display = "none";
+  } else {
+    settingsPanel.style.display = "block";
+  }
+}
 
-    loaderBox.style.display = 'block';
-    progressText.textContent = 'Processing: 0%';
-    progressFill.style.width = '0%';
+// Main OCR function - SIMPLIFIED and WORKING
+async function extractText() {
+  if (isProcessing) {
+    alert("Please wait for current processing to complete.");
+    return;
+  }
+  
+  const file = upload.files[0];
+  if(!file) {
+    alert("Please upload an image first!");
+    return;
+  }
 
-    Tesseract.recognize(file, 'eng', {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          let percent = Math.round(m.progress * 100);
-          progressText.textContent = 'Processing: ' + percent + '%';
-          progressFill.style.width = percent + '%';
-        }
+  // Reset UI
+  loader.style.display = "block";
+  output.style.display = "none";
+  percent.textContent = "0%";
+  progress.style.width = "0%";
+  isProcessing = true;
+  
+  try {
+    // Get settings
+    const language = document.getElementById("languageSelect").value;
+    const pageSegMode = document.getElementById("modeSelect").value;
+    
+    // Show initial progress
+    progress.style.width = "10%";
+    percent.textContent = "10%";
+    
+    // Use Tesseract.js directly - SIMPLIFIED APPROACH
+    const result = await Tesseract.recognize(
+      file,
+      language,
+      {
+        logger: message => {
+          console.log("Tesseract Log:", message);
+          
+          if (message.status === 'recognizing text') {
+            const progressValue = Math.round(message.progress * 100);
+            progress.style.width = `${progressValue}%`;
+            percent.textContent = `${progressValue}%`;
+          }
+        },
+        // Simplified configuration
+        tessedit_pageseg_mode: pageSegMode,
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,!?;:-\'"()[]{}@#$%&*+-/=<>',
+        preserve_interword_spaces: '1',
       }
-    })
-    .then(result => {
-      loaderBox.style.display = 'none';
-      output.style.display = 'block';
-      output.textContent = result.data.text || 'No text detected.';
-      copyBtn.style.display = 'block';
-    })
-    .catch(() => {
-      progressText.textContent = 'Error!';
-    });
-  });
+    );
+    
+    console.log("OCR Result:", result);
+    
+    // Display results
+    loader.style.display = "none";
+    output.style.display = "block";
+    
+    if(result.data && result.data.text && result.data.text.trim().length > 0) {
+      // Clean up the text
+      const cleanedText = cleanText(result.data.text);
+      output.textContent = cleanedText;
+      
+      // Auto-scroll to output
+      output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      output.textContent = "⚠️ No text was detected. This could be because:\n\n" +
+                          "1. The image doesn't contain readable text\n" +
+                          "2. The text is too small or blurry\n" +
+                          "3. Low contrast between text and background\n" +
+                          "4. Try a different language setting\n\n" +
+                          "💡 Tip: Try using a clearer, high-contrast image.";
+    }
+    
+  } catch(error) {
+    console.error("OCR Error:", error);
+    loader.style.display = "none";
+    output.style.display = "block";
+    output.textContent = "❌ Error processing image:\n" + error.message + "\n\n" +
+                        "Please try:\n" +
+                        "1. A different image format (PNG or JPG)\n" +
+                        "2. Reducing the image size\n" +
+                        "3. Checking your internet connection\n" +
+                        "4. Using a simpler image";
+  } finally {
+    isProcessing = false;
+    progress.style.width = "100%";
+    percent.textContent = "100%";
+  }
+}
 
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(output.textContent);
-    alert('Copied!');
-  });
+// Clean up extracted text
+function cleanText(text) {
+  return text
+    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Remove multiple blank lines
+    .replace(/[ \t]+/g, ' ')           // Replace multiple spaces/tabs with single space
+    .replace(/\s+\./g, '.')            // Remove spaces before periods
+    .replace(/\s+,/g, ',')             // Remove spaces before commas
+    .replace(/\s+:/g, ':')             // Remove spaces before colons
+    .replace(/\s+;/g, ';')             // Remove spaces before semicolons
+    .replace(/\.{2,}/g, '.')           // Replace multiple dots with single dot
+    .replace(/,{2,}/g, ',')            // Replace multiple commas with single comma
+    .replace(/\s*-\s*/g, '-')          // Clean up hyphens
+    .replace(/^\s+|\s+$/g, '')         // Trim start and end
+    .replace(/(\S)\n(\S)/g, '$1 $2')   // Replace single newlines between words with space
+    .trim();
+}
+
+// Copy text to clipboard
+async function copyText() {
+  const text = output.innerText.trim();
+  if(!text || text.includes("No text was detected") || text.includes("Error processing")) {
+    alert("No valid text to copy! Please extract text first.");
+    return;
+  }
+  
+  try {
+    await navigator.clipboard.writeText(text);
+    
+    // Visual feedback
+    const copyBtn = document.querySelector('.copy-btn');
+    const originalText = copyBtn.textContent;
+    const originalBg = copyBtn.style.background;
+    
+    copyBtn.textContent = '✓ Copied!';
+    copyBtn.style.background = 'linear-gradient(135deg,#00b894,#00a085)';
+    copyBtn.disabled = true;
+    
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+      copyBtn.style.background = originalBg;
+      copyBtn.disabled = false;
+    }, 2000);
+    
+  } catch(err) {
+    console.error('Copy failed:', err);
+    
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if(successful) {
+        alert("Text copied to clipboard!");
+      } else {
+        alert("Failed to copy. You can manually select and copy the text.");
+      }
+    } catch(e) {
+      alert("Failed to copy. You can manually select and copy the text.");
+    }
+    
+    document.body.removeChild(textArea);
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("Image to Text Converter ready");
+  
+  // Test that Tesseract is loaded
+  if (typeof Tesseract === 'undefined') {
+    console.error("Tesseract.js not loaded!");
+    alert("Error: Tesseract.js failed to load. Please check your internet connection.");
+  } else {
+    console.log("Tesseract.js loaded successfully");
+  }
+});
+
+// Clean up object URLs when page is unloaded
+window.addEventListener('beforeunload', () => {
+  if (preview.src && preview.src.startsWith('blob:')) {
+    URL.revokeObjectURL(preview.src);
+  }
+});
 </script>
 
 </body>
-</html>
+       </html>
