@@ -6,6 +6,7 @@
 <title>Image Rotator | Multi-Tool</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -55,33 +56,131 @@ input[type=file]{display:none;}
 .controls{
   margin-top:25px;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
+  grid-template-columns:repeat(4, 1fr);
+  gap:12px;
 }
 button{
-  padding:15px;
+  padding:14px 10px;
   border-radius:14px;
   border:none;
-  font-size:1rem;
-  background:linear-gradient(135deg,#007bff,#0057ff);
-  color:#fff;
+  font-size:0.95rem;
   font-weight:600;
   cursor:pointer;
+  transition:all 0.3s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.rotate-btn{
+  background:linear-gradient(135deg,#007bff,#0057ff);
+  color:#fff;
+}
+.flip-btn{
+  background:linear-gradient(135deg,#00c6a9,#00b894);
+  color:#fff;
+}
+.download-btn{
+  background:linear-gradient(135deg,#ff6b6b,#ff4757);
+  color:#fff;
+}
+.reset-btn{
+  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+  color:#fff;
 }
 button:hover{
-  transform:translateY(-2px);
+  transform:translateY(-3px);
   box-shadow:0 10px 20px rgba(0,87,255,0.3);
+}
+button i{
+  font-size:1.3rem;
+}
+
+/* SLIDER CONTROL */
+.slider-container{
+  margin-top:20px;
+  display:none;
+}
+.slider-container label{
+  display:block;
+  color:#0057ff;
+  font-weight:600;
+  margin-bottom:10px;
+  font-size:1rem;
+}
+.slider-wrapper{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+.slider-value{
+  min-width:50px;
+  text-align:center;
+  color:#0057ff;
+  font-weight:600;
+  font-size:1rem;
+}
+input[type=range]{
+  flex:1;
+  height:10px;
+  -webkit-appearance:none;
+  background:#e6efff;
+  border-radius:20px;
+  outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:24px;
+  height:24px;
+  background:#0057ff;
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,87,255,0.3);
 }
 
 /* PREVIEW */
-.preview{text-align:center;margin-top:25px;display:none;}
-.preview img{
+.preview{
+  text-align:center;
+  margin-top:25px;
+  display:none;
+  position:relative;
+}
+.preview canvas{
   max-width:100%;
+  max-height:400px;
   border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* INFO */
+/* TRANSFORM DISPLAY */
+.transform-info{
+  position:absolute;
+  top:15px;
+  right:15px;
+  background:rgba(0,87,255,0.9);
+  color:white;
+  padding:8px 15px;
+  border-radius:10px;
+  font-size:0.9rem;
+  display:none;
+}
+
+/* FILE INFO */
+.file-info{
+  margin-top:15px;
+  padding:12px;
+  background:#f5faff;
+  border-radius:12px;
+  display:none;
+  text-align:left;
+}
+.file-info p{
+  color:#3b6cff;
+  margin:5px 0;
+  font-size:0.9rem;
+}
+
+/* INFO SECTIONS */
 .info-section{margin-bottom:30px;}
 .info-section h2{color:#0057ff;margin-bottom:15px;font-size:1.6rem;}
 .info-section li{color:#3b6cff;line-height:1.7;font-size:1rem;}
@@ -90,8 +189,11 @@ button:hover{
 /* MOBILE */
 @media(max-width:768px){
   .tool-header h1{font-size:2rem;}
-  .controls{grid-template-columns:1fr;}
+  .controls{grid-template-columns:repeat(2, 1fr);}
   .card{padding:25px;}
+}
+@media(max-width:480px){
+  .controls{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -109,24 +211,56 @@ button:hover{
 <div class="card">
 
 <label class="upload-box" for="upload">
+  <i class="fas fa-cloud-upload-alt" style="font-size:3rem;color:#0057ff;margin-bottom:15px;"></i>
   <h3>Upload Image</h3>
   <p>Click to select an image from your device</p>
+  <p style="font-size:0.9rem;margin-top:10px;color:#6c8eff;">Supports JPG, PNG, GIF, WebP</p>
 </label>
 <input type="file" id="upload" accept="image/*">
 
 <div class="controls">
-  <button onclick="rotate(-90)">Rotate Left</button>
-  <button onclick="rotate(90)">Rotate Right</button>
-  <button onclick="flipX()">Flip Horizontal</button>
-  <button onclick="flipY()">Flip Vertical</button>
+  <button class="rotate-btn" onclick="rotate(-90)">
+    <i class="fas fa-undo"></i>
+    <span>Rotate Left</span>
+  </button>
+  <button class="rotate-btn" onclick="rotate(90)">
+    <i class="fas fa-redo"></i>
+    <span>Rotate Right</span>
+  </button>
+  <button class="flip-btn" onclick="flipX()">
+    <i class="fas fa-arrows-alt-h"></i>
+    <span>Flip Horizontal</span>
+  </button>
+  <button class="flip-btn" onclick="flipY()">
+    <i class="fas fa-arrows-alt-v"></i>
+    <span>Flip Vertical</span>
+  </button>
+</div>
+
+<div class="slider-container" id="sliderContainer">
+  <label>Fine Rotation: <span id="angleValue">0°</span></label>
+  <div class="slider-wrapper">
+    <span class="slider-value">-180°</span>
+    <input type="range" id="angleSlider" min="-180" max="180" value="0" step="1">
+    <span class="slider-value">180°</span>
+  </div>
 </div>
 
 <div class="preview" id="previewBox">
+  <div class="transform-info" id="transformInfo">Rotation: 0°</div>
   <canvas id="canvas"></canvas>
+  <div class="file-info" id="fileInfo"></div>
 </div>
 
 <div class="controls">
-  <button onclick="download()">Download Image</button>
+  <button class="reset-btn" onclick="resetImage()">
+    <i class="fas fa-sync-alt"></i>
+    <span>Reset Image</span>
+  </button>
+  <button class="download-btn" onclick="download()">
+    <i class="fas fa-download"></i>
+    <span>Download Image</span>
+  </button>
 </div>
 
 </div>
@@ -135,10 +269,11 @@ button:hover{
 <div class="card info-section">
 <h2>How to Use</h2>
 <ul>
-  <li>Upload an image from your device</li>
-  <li>Rotate left/right or flip horizontally/vertically</li>
-  <li>Preview the changes instantly</li>
-  <li>Download the final rotated image</li>
+  <li>Upload an image from your device (JPG, PNG, GIF, WebP)</li>
+  <li>Rotate left/right by 90° increments or use the slider for fine control</li>
+  <li>Flip horizontally or vertically as needed</li>
+  <li>Preview changes instantly with transformation info</li>
+  <li>Reset to original or download the final image</li>
 </ul>
 </div>
 
@@ -146,8 +281,10 @@ button:hover{
 <div class="card info-section">
 <h2>Features</h2>
 <ul>
-  <li>Rotate images by 90 degrees</li>
+  <li>Rotate images by 90° increments or any angle (-180° to 180°)</li>
   <li>Flip images horizontally or vertically</li>
+  <li>Real-time preview with transformation details</li>
+  <li>File information display (dimensions, size)</li>
   <li>No server upload – works fully in browser</li>
   <li>High-quality output without compression loss</li>
   <li>Fully mobile responsive design</li>
@@ -157,52 +294,322 @@ button:hover{
 </div>
 
 <script>
-const upload=document.getElementById("upload");
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const previewBox=document.getElementById("previewBox");
+// DOM Elements
+const upload = document.getElementById("upload");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const previewBox = document.getElementById("previewBox");
+const sliderContainer = document.getElementById("sliderContainer");
+const angleSlider = document.getElementById("angleSlider");
+const angleValue = document.getElementById("angleValue");
+const transformInfo = document.getElementById("transformInfo");
+const fileInfo = document.getElementById("fileInfo");
 
-let img=new Image();
-let angle=0, flipH=1, flipV=1;
+// State variables
+let img = new Image();
+let originalImg = null;
+let angle = 0;
+let flipH = 1;
+let flipV = 1;
+let originalWidth = 0;
+let originalHeight = 0;
+let fileName = "";
+let fileSize = 0;
 
-upload.addEventListener("change",()=>{
-  const file=upload.files[0];
-  if(!file) return;
-  img.src=URL.createObjectURL(file);
-  img.onload=()=>{
-    angle=0;flipH=1;flipV=1;
+// Initialize
+upload.addEventListener("change", handleImageUpload);
+angleSlider.addEventListener("input", handleSliderChange);
+
+function handleImageUpload() {
+  const file = upload.files[0];
+  if (!file) return;
+  
+  // Check file type
+  if (!file.type.match('image.*')) {
+    alert("Please select a valid image file (JPG, PNG, GIF, WebP).");
+    return;
+  }
+  
+  // Store file info
+  fileName = file.name;
+  fileSize = file.size;
+  
+  // Create image object
+  img = new Image();
+  img.src = URL.createObjectURL(file);
+  
+  img.onload = function() {
+    // Store original image data
+    originalImg = new Image();
+    originalImg.src = img.src;
+    originalWidth = img.width;
+    originalHeight = img.height;
+    
+    // Reset transformations
+    angle = 0;
+    flipH = 1;
+    flipV = 1;
+    angleSlider.value = 0;
+    
+    // Update UI
+    previewBox.style.display = "block";
+    sliderContainer.style.display = "block";
+    transformInfo.style.display = "block";
+    
+    // Show file info
+    displayFileInfo();
+    
+    // Draw image
     draw();
-    previewBox.style.display="block";
+  };
+  
+  img.onerror = function() {
+    alert("Error loading image. Please try another file.");
+  };
+}
+
+function draw() {
+  // Calculate canvas size based on transformations
+  const rad = angle * Math.PI / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  
+  // Calculate new dimensions
+  let newWidth, newHeight;
+  
+  if (Math.abs(angle % 180) === 90) {
+    // When rotated 90° or 270°, swap dimensions
+    newWidth = originalHeight * cos + originalWidth * sin;
+    newHeight = originalWidth * cos + originalHeight * sin;
+  } else {
+    newWidth = originalWidth * cos + originalHeight * sin;
+    newHeight = originalWidth * sin + originalHeight * cos;
+  }
+  
+  // Set canvas dimensions (limit for display)
+  const maxDisplaySize = 500;
+  let displayWidth = newWidth;
+  let displayHeight = newHeight;
+  
+  if (displayWidth > maxDisplaySize || displayHeight > maxDisplaySize) {
+    const ratio = Math.min(maxDisplaySize / displayWidth, maxDisplaySize / displayHeight);
+    displayWidth *= ratio;
+    displayHeight *= ratio;
+  }
+  
+  canvas.width = displayWidth;
+  canvas.height = displayHeight;
+  
+  // Clear and draw
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  
+  // Move to center
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  
+  // Apply rotation
+  ctx.rotate(rad);
+  
+  // Apply flips
+  ctx.scale(flipH, flipV);
+  
+  // Calculate scale for display
+  const scaleX = displayWidth / newWidth;
+  const scaleY = displayHeight / newHeight;
+  const scale = Math.min(scaleX, scaleY);
+  
+  // Draw image
+  const drawWidth = newWidth * scale;
+  const drawHeight = newHeight * scale;
+  ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+  
+  ctx.restore();
+  
+  // Update transformation info
+  updateTransformInfo();
+}
+
+function rotate(degrees) {
+  angle += degrees;
+  angle = ((angle % 360) + 360) % 360; // Keep within 0-360
+  angleSlider.value = angle > 180 ? angle - 360 : angle; // Convert to -180 to 180 range
+  updateAngleDisplay();
+  draw();
+}
+
+function flipX() {
+  flipH *= -1;
+  draw();
+}
+
+function flipY() {
+  flipV *= -1;
+  draw();
+}
+
+function handleSliderChange() {
+  angle = parseInt(angleSlider.value);
+  updateAngleDisplay();
+  draw();
+}
+
+function updateAngleDisplay() {
+  let displayAngle = angle;
+  if (displayAngle > 180) {
+    displayAngle -= 360;
+  }
+  angleValue.textContent = `${displayAngle}°`;
+}
+
+function updateTransformInfo() {
+  let info = "";
+  
+  if (angle !== 0) {
+    let displayAngle = angle;
+    if (displayAngle > 180) displayAngle -= 360;
+    info += `Rotation: ${displayAngle}° `;
+  }
+  
+  if (flipH === -1) info += "| Flipped Horizontal ";
+  if (flipV === -1) info += "| Flipped Vertical";
+  
+  transformInfo.textContent = info || "No Transformations";
+}
+
+function displayFileInfo() {
+  const dimensions = `${originalWidth} × ${originalHeight}px`;
+  const size = formatFileSize(fileSize);
+  
+  fileInfo.innerHTML = `
+    <p><strong>File:</strong> ${fileName}</p>
+    <p><strong>Dimensions:</strong> ${dimensions}</p>
+    <p><strong>Size:</strong> ${size}</p>
+  `;
+  fileInfo.style.display = "block";
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function resetImage() {
+  if (!originalImg) return;
+  
+  img.src = originalImg.src;
+  angle = 0;
+  flipH = 1;
+  flipV = 1;
+  angleSlider.value = 0;
+  
+  img.onload = function() {
+    updateAngleDisplay();
+    draw();
+  };
+}
+
+function download() {
+  if (!originalImg) {
+    alert("Please upload an image first!");
+    return;
+  }
+  
+  // Create a temporary canvas for high-quality download
+  const downloadCanvas = document.createElement('canvas');
+  const downloadCtx = downloadCanvas.getContext('2d');
+  
+  // Calculate actual dimensions (not scaled for display)
+  const rad = angle * Math.PI / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  
+  let downloadWidth, downloadHeight;
+  
+  if (Math.abs(angle % 180) === 90) {
+    downloadWidth = originalHeight * cos + originalWidth * sin;
+    downloadHeight = originalWidth * cos + originalHeight * sin;
+  } else {
+    downloadWidth = originalWidth * cos + originalHeight * sin;
+    downloadHeight = originalWidth * sin + originalHeight * cos;
+  }
+  
+  downloadCanvas.width = downloadWidth;
+  downloadCanvas.height = downloadHeight;
+  
+  // Apply transformations
+  downloadCtx.save();
+  downloadCtx.translate(downloadCanvas.width / 2, downloadCanvas.height / 2);
+  downloadCtx.rotate(rad);
+  downloadCtx.scale(flipH, flipV);
+  downloadCtx.drawImage(img, -originalWidth / 2, -originalHeight / 2);
+  downloadCtx.restore();
+  
+  // Create download link
+  const link = document.createElement('a');
+  
+  // Get file extension
+  const extension = fileName.split('.').pop().toLowerCase();
+  const mimeTypes = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp'
+  };
+  
+  const mimeType = mimeTypes[extension] || 'image/png';
+  const finalExtension = extension === 'jpg' || extension === 'jpeg' ? 'jpg' : extension;
+  
+  link.download = `transformed-${Date.now()}.${finalExtension}`;
+  link.href = downloadCanvas.toDataURL(mimeType, 1.0);
+  
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Show feedback
+  const downloadBtn = document.querySelector('.download-btn');
+  const originalHTML = downloadBtn.innerHTML;
+  downloadBtn.innerHTML = '<i class="fas fa-check"></i><span>Downloaded!</span>';
+  downloadBtn.style.background = 'linear-gradient(135deg,#00b894,#00a085)';
+  
+  setTimeout(() => {
+    downloadBtn.innerHTML = originalHTML;
+    downloadBtn.style.background = 'linear-gradient(135deg,#ff6b6b,#ff4757)';
+  }, 2000);
+}
+
+// Add drag and drop support
+const uploadBox = document.querySelector('.upload-box');
+
+uploadBox.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadBox.style.borderColor = '#0057ff';
+  uploadBox.style.background = 'linear-gradient(135deg,#e8f1ff,#dfeaff)';
+});
+
+uploadBox.addEventListener('dragleave', () => {
+  uploadBox.style.borderColor = '#007bff';
+  uploadBox.style.background = 'linear-gradient(135deg,#f5faff,#eef5ff)';
+});
+
+uploadBox.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadBox.style.borderColor = '#007bff';
+  uploadBox.style.background = 'linear-gradient(135deg,#f5faff,#eef5ff)';
+  
+  if (e.dataTransfer.files.length) {
+    upload.files = e.dataTransfer.files;
+    handleImageUpload();
   }
 });
 
-function draw(){
-  const rad=angle*Math.PI/180;
-  const sin=Math.abs(Math.sin(rad));
-  const cos=Math.abs(Math.cos(rad));
-
-  canvas.width=img.width*cos+img.height*sin;
-  canvas.height=img.width*sin+img.height*cos;
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save();
-  ctx.translate(canvas.width/2,canvas.height/2);
-  ctx.rotate(rad);
-  ctx.scale(flipH,flipV);
-  ctx.drawImage(img,-img.width/2,-img.height/2);
-  ctx.restore();
-}
-
-function rotate(val){angle+=val;draw();}
-function flipX(){flipH*=-1;draw();}
-function flipY(){flipV*=-1;draw();}
-
-function download(){
-  const link=document.createElement("a");
-  link.download="rotated-image.png";
-  link.href=canvas.toDataURL();
-  link.click();
-}
+// Initialize angle display
+updateAngleDisplay();
 </script>
 
 </body>
